@@ -30,6 +30,7 @@ dist/
 .vscode/
 
 # stls
+stl_exports/
 *.stl
 
 # Unit test reports
