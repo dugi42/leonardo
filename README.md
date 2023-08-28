@@ -1,5 +1,4 @@
 # Leonardo Generative Design Engine
-Reading time: 3 mins
 
 **Daniel Hauser**
 *Head of Data Engineering & Analytics, Bank für Tirol und Vorarlberg AG, Austria*
@@ -51,9 +50,9 @@ Coordinate systems are the backbone of every transformation.
 
 Cylindrical coordinates can be related to Cartesian coordinates using the following equations:
 
-- \( x = r \cdot \cos(\varphi) \)
-- \( y = r \cdot \sin(\varphi) \)
-- \( z = z \)
+- $ x = r \cdot \cos(\varphi) $
+- $ y = r \cdot \sin(\varphi) $
+- $ z = z $
 
 Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
 
