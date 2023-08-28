@@ -46,7 +46,6 @@ Thumbs.db
 *.hdf5
 
 # Media files
-*.jpg
 *.mp4
 *.tiff
 *.avi
