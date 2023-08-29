@@ -186,14 +186,6 @@ def create_app(config: dict) -> dash.Dash:
                 ),
                 dbc.Button('Download STL', id='download-button',n_clicks=0),
                 dcc.Download(id='download'),
-                html.P(dcc.Checklist(id="export",
-                                     options=[
-                                        {'label': ' Export STL file',
-                                            'value': 'export_stl'},
-                                     ],
-                                     value=[],
-                                     )
-                       ),
                 html.P(
                     html.Label(["Interested into how it is done? Let's get in ", html.A(
                         'touch!', href='https://www.linkedin.com/in/daniel-hauser-77259a159', target="_blank")]),

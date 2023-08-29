@@ -10,7 +10,7 @@ GitHub: **https://github.com/dugi42/**
 ## 0. Clone, install and run Leonardo
 
 **Prerequists**
-✅ Python 3.X installed
+✅ Python 3.X installed (using Anaconda or Miniconda is recommended)
 ✅ GIT installed
 ✅ Hungry for awesome 
 
