@@ -247,7 +247,7 @@ def create_callbacks(app: dash.Dash, config: dict) -> List[dict]: # type: ignore
     # Button click callback for the design generation.
     @app.callback([Output('graph', 'figure')],
                   [Input('generate', 'n_clicks')])
-    def update(generate_button):
+    def update(generate_button): # type: ignore
         # Select random model
         model = np.random.choice([
             "csym",
