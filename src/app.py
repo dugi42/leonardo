@@ -184,7 +184,7 @@ def create_app(config: dict) -> dash.Dash:
                 html.P(
                     dbc.Button('Suprise!', id='generate', n_clicks=0, color='light'), className="lead"
                 ),
-                dbc.Button('Download STL', id='download-button',n_clicks=0),
+                dbc.Button('Download STL-file', id='download-button',n_clicks=0),
                 dcc.Download(id='download'),
                 html.P(
                     html.Label(["Interested into how it is done? Let's get in ", html.A(
