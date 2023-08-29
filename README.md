@@ -39,7 +39,7 @@ The motivation for this projects goes back to my time as a Tech Lead being part 
 
 **So fasten your seatbelts ladies and gents, because you will see some freaky linear algebra combined with nasty functions all wrapped up in pure Python 🤓**
 
-## 2. The Math behind Leonardo
+## 2. The math behind Leonardo
 
 This chapter will illuminate some light on the thoughts and concepts behind the design engine. I am not claiming that this approach is the most elegant one, but it does the job. Suggestions for improvements are warmly welcome :)!
 

@@ -16,7 +16,7 @@ The export_stl() function exports the design as an STL file.
 from typing import Tuple, List
 import numpy as np
 import matplotlib.tri as mtri
-import time
+import json
 
 from plotly import graph_objs as go
 import dash
@@ -65,7 +65,7 @@ def init_figure(config: dict) -> dcc.Loading:
         i=[],
         j=[],
         k=[]
-    )
+    ) # type: ignore
 
     # Create empty layout
     layout = go.Layout(
@@ -75,7 +75,7 @@ def init_figure(config: dict) -> dcc.Loading:
             yaxis=hide_axis(),
             zaxis=hide_axis()
         )
-    )
+    ) # type: ignore
 
     # Create init figure with loader animation
     figure = dcc.Loading(
@@ -132,7 +132,7 @@ def update_figure(geometry: Tuple[np.ndarray, np.ndarray, np.ndarray, mtri.trian
         showscale=False,
         lighting=config["app"]["figure"]["lighting"],
         lightposition=config["app"]["figure"]["lightposition"],
-    )
+    ) # type: ignore
 
     # Update layout
     update_layout = go.Layout(
@@ -142,7 +142,7 @@ def update_figure(geometry: Tuple[np.ndarray, np.ndarray, np.ndarray, mtri.trian
                    yaxis=hide_axis(),
                    zaxis=hide_axis()),
         scene_aspectmode='data'
-    )
+    ) # type: ignore
 
     # Update configuration
     update_config = {
@@ -176,15 +176,16 @@ def create_app(config: dict) -> dash.Dash:
     # Create jumbotron
     jumbotron = html.Div(
         dbc.Container(
-            [
-                html.H4("Surprise yourself!", className="display-4"),
+            [   html.H4("Surprise yourself!", className="display-4"),
                 html.P(
                     """The Leonardo engine is designing unique 3D designs.""",
                     className="lead",
                 ),
                 html.P(
-                    dbc.Button('GO!', id='generate', n_clicks=0, color='light'), className="lead"
+                    dbc.Button('Suprise!', id='generate', n_clicks=0, color='light'), className="lead"
                 ),
+                dbc.Button('Download STL', id='download-button',n_clicks=0),
+                dcc.Download(id='download'),
                 html.P(dcc.Checklist(id="export",
                                      options=[
                                         {'label': ' Export STL file',
@@ -245,8 +246,8 @@ def create_callbacks(app: dash.Dash, config: dict) -> List[dict]: # type: ignore
 
     # Button click callback for the design generation.
     @app.callback([Output('graph', 'figure')],
-                  [Input('generate', 'n_clicks'), State('export', 'value')])
-    def update(_, export):
+                  [Input('generate', 'n_clicks')])
+    def update(generate_button):
         # Select random model
         model = np.random.choice([
             "csym",
@@ -257,13 +258,18 @@ def create_callbacks(app: dash.Dash, config: dict) -> List[dict]: # type: ignore
         geometry = design(config, model)
         update_graph = update_figure(geometry, config)
         x, y, z, triangles = geometry
-
-        # If export is selected, export the stl file
-        if 'export_stl' in export:
-            export_stl(f'./stl_exports/{time.time()}.stl', x, y, z, triangles)
-
+        if generate_button is not None and generate_button > 0:
+            export_stl('export.stl', x, y, z, triangles)
         return [update_graph]
-
+    
+    
+    @app.callback([Output('download', 'data')],
+                  [Input('download-button', 'n_clicks')])
+    def update(download_button):
+        if download_button is not None and download_button > 0:
+            return [dcc.send_file('export.stl')]
+    
+    
 
 def run_app(config: dict) -> dash.Dash:
     """Create the app, callbacks and runs the server

@@ -1,7 +1,6 @@
 
 # This code runs the app
 
-
 from src.common import create_parser, read_config
 from src.app import run_app
 
