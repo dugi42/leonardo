@@ -11,4 +11,6 @@ app = run_app(config)  # Run app including design engine as backend
 
 if __name__ == "__main__":
     # Run app
-    app.run_server()
+
+    app.run_server(host=config["app"]["host"],
+                   port=config["app"]["port"])
