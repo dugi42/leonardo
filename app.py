@@ -7,10 +7,9 @@ from src.ui import run_app
 # parsed_args = create_parser()  # Create parsed arguments
 config = read_config("config.yml")  # Get config data
 app = run_app(config)  # Run app including design engine as backend
-
+server = app.server
 
 if __name__ == "__main__":
     # Run app
-
     app.run_server(host=config["app"]["host"],
                    port=config["app"]["port"])

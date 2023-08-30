@@ -4,6 +4,7 @@ channels:
 dependencies:
   - python=3.9.13
   - pip:
+    - gunicorn==20.1.0
     - dash==2.0.0
     - dash-bootstrap-components==1.0.1
     - dash-core-components==2.0.0
