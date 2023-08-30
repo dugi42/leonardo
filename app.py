@@ -2,7 +2,7 @@
 # This code runs the app
 
 from src.common import create_parser, read_config
-from src.app import run_app
+from src.ui import run_app
 
 # parsed_args = create_parser()  # Create parsed arguments
 config = read_config("config.yml")  # Get config data
