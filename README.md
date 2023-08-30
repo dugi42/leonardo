@@ -60,7 +60,7 @@ z = z
 $$
 
 
-Where $r$ is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
+Where $r$ is the distance from the origin in the xy-plane, $\varphi$ is the angle from the positive x-axis, and $z$ is the height above the xy-plane.
 
 #### 2.0.2. Spherical Coordinates
 
@@ -111,7 +111,7 @@ Twisting and tilting are essential transformations for generating interesting 3D
 
 #### 2.2.1. Twist Transformation
 
-To rotate a point \( P(x, y, z) \) counterclockwise by an angle \( \alpha \) about the z-axis, the rotation matrix is:
+To rotate a point $P(x, y, z)$ counterclockwise by an angle \( \alpha \) about the z-axis, the rotation matrix is:
 
 $$
 R_z(\alpha) = 
@@ -122,7 +122,7 @@ R_z(\alpha) =
 \end{bmatrix}
 $$
 
-The new coordinates \( P'(x', y', z') \) can be found by multiplying the rotation matrix by the original coordinates:
+The new coordinates $P'(x', y', z')$ can be found by multiplying the rotation matrix by the original coordinates:
 
 $$
 \begin{bmatrix}
@@ -154,9 +154,9 @@ $$
 r = \left( \left| \frac{x}{a} \right|^n + \left| \frac{y}{b} \right|^n \right)^{1/n}
 $$
 
-By choosing n carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
+By choosing $n$ carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
 
-<div style="background-color: white; padding: 10px;">
+<div style="background-color: #FFFFFF; padding: 10px;">
   <img src="imgs/superellipse.png" alt="Alt text" style="width: 50%; height: auto;">
 </div>
 
@@ -164,18 +164,30 @@ By choosing n carefully, the Lamé curve can be transformed into a circle, an el
 
 
 
-
-
-
 ### 2.3. Adding modulation and texture
 
-Modulation and texture are used to further enhance the design. The function `generate_modulation` again uses the random Spline transformation to 
+Modulation and texture are used to further enhance the design. The subchapters below will explain the math behind these transformations.
+
+#### 2.3.1. Modulation
+
+The function `generate_modulation()` from the `engine.py` module is used to modulate the grid of points again using random spline transformation. Each coordinate of all points generated can be transformed accordingly. This allows for a wide range of modulation effects in each spatial dimension.
+
+#### 2.3.2. Texture
+
+The function `generate_texture()` from the `engine.py` module is used to apply texture to each coordinate of all points generated. The following functions can be applied to each coordinate with a defined set of parameters to generate different textures:
+* Sinusoidal function
+* Sawtooth function
+* Square function
+* Gaussian Pulse function
+  
+The function `generate_angular_texture` from the `engine.py` modul than applies the texture transformations on the angles $\varphi$ and $\theta$ in case of the spherical coordinate system. The range and specifications of the texture transformations can be defined in the `config.yml` file.
 
 ## 3. Design process
 
-## 4. 🌈 Somewhere, over the rainbow ...
+## 4. Deployment to Azure Web Services
+
+## 5. 🌈 OutlookSomewhere, over the rainbow ...
  
-*Coming soon!*
 
 
 
