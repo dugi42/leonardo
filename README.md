@@ -33,6 +33,7 @@ python3 main.py -c config.yml
 Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter :). This is actually true, check out the `config.yml` file in the repo.
 
 The motivation for this projects goes back to my time as a Tech Lead being part of a great team pioniering 3D-printing of glass. We needed to generated different 3D-objects to explore and probe the high-dimensional parameter space of our manifacturing process. To overcome the timedemanding and manual 3D-design process I developed an infancy design tool which was purly based on cylinder symetric 3D-designs. Years later and as a side project I have to descided to restart this project and generalized the design capabilities by introducting rotational symetric design elements. The image below shows nine randomly generated 3D designs.
+
 ![Alt text](imgs/image02.jpg)
 
 *Claude Elwood Shannon*, the father of information theory concluded that **information is surprise**. Only when we are surprised, we will learn something profound and important about the underlying dynamics and laws of nature! This is also applicable in the context of arts & design since these disciplines meet at the intersection of control and accident leading to surprise.
@@ -41,7 +42,7 @@ The motivation for this projects goes back to my time as a Tech Lead being part 
 
 ## 2. The math behind the Leonardo Engine
 
-This chapter will illuminate some light on the thoughts and concepts behind the engine. I am not claiming that this approach is the most elegant one, but it does the job. Suggestions for improvements are warmly welcome!
+This chapter will illuminate some light on the thoughts and concepts behind the engine. I am not claiming that this approach is the most elegant one, but it does the job. Suggestions for improvements are warmly welcome! All details can be found in the doc-strings and comments within `engine.py` module.
 
 ### 2.0. Coordinate systems
 The engine is based on three different coordinate systems: cylindrical, spherical, and torus coordinates. The subchapters below are quickly reviewing the basics of these coordinate systems.
@@ -147,13 +148,17 @@ Transforming an ellipse into a rectangle and vice versa is a very powerful trans
 r = \left( \left| \frac{x}{a} \right|^n + \left| \frac{y}{b} \right|^n \right)^{1/n}
 ```
 
-By choosing n carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamè equation to transform the grid of points into a rectangle.
+By choosing n carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
+
+![Alt text](imgs/superellipse.png)
+*Superellipse examples taken from [Wikipedia](https://en.wikipedia.org/wiki/Superellipse)*
+
+
 
 
 ### 2.3. Adding modulation and texture
 
-*Coming soon!*
-
+Modulation and texture are used to further enhance the design. Modulation again uses the Splinetrans
 
 ## 3. Design process
 
