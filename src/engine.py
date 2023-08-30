@@ -179,7 +179,7 @@ def generate_texture(array: np.ndarray, texture_type: int = 0, amplitude: float 
 
 
 def generate_edginess(array: np.ndarray, angle: np.ndarray, edginess: float = 0.) -> Tuple[np.ndarray, np.ndarray]:
-    """Generates edginess from an input array by means of Lamé function.
+    """Generates edginess from an input array by means of Lamé curve.
 
     Args:
         array (np.ndarray): Input array which is transformed.
