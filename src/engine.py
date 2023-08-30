@@ -493,7 +493,6 @@ def get_ijk(triangles: mtri.triangulation.Triangulation) -> Tuple[np.ndarray, np
     return i, j, k
 
 
-@staticmethod
 def export_stl(path: str, x: np.ndarray, y: np.ndarray, z: np.ndarray, triangles: mtri.triangulation.Triangulation):
     """Exports a STL file from a generated desgin.
 
