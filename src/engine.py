@@ -289,7 +289,7 @@ def generate_texture(array: np.ndarray, texture_type: int = 0, amplitude: float 
         duty_cycle (float, optional): If needed feature duty cycle. Defaults to 0.5.
 
     Returns:
-        np.bdarray: Return surface texture from input array. 
+        np.ndarray: Return surface texture from input array. 
     """
 
     # Init feature
