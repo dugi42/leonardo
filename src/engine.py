@@ -10,6 +10,45 @@ import numpy as np
 import matplotlib.tri as mtri
 
 
+def generate_parameters(config: dict, model: str = "csym") -> dict:
+    """
+    Generate a dictionary of parameters for a given model based on a configuration dictionary.
+
+    Args:
+        config (dict): A dictionary containing configuration information for the model.
+        model (str): The name of the model to generate parameters for. Defaults to "csym".
+
+    Returns:
+        dict: A dictionary containing the generated parameters for the model.
+    """
+    
+    # Init dict
+    parameters = {}
+
+    # Generate random parameter from list or value
+    for key, val in config["models"][model]["parameters"].items():
+        if isinstance(val, list):
+            parameters[key] = np.random.uniform(val[0], val[1])
+        else:
+            parameters[key] = val
+
+    # Add phi texture type
+    parameters["phi_texture_type"] = np.random.randint(
+        config["models"][model]["num_texture_types"])
+
+    # Add z texture type in case of cylindrical coordinates
+    if model == "csym":
+        parameters["z_texture_type"] = np.random.randint(
+            config["models"][model]["num_texture_types"])
+
+    # Add theta texture time in case of angular coordinates
+    elif model == "rsym":
+        parameters["theta_texture_type"] = np.random.randint(
+            config["models"][model]["num_texture_types"])
+
+    return parameters
+
+
 def generate_grid(a_max: float = np.nan, b_max: float = np.nan, num_points: int = 256) -> Tuple[np.ndarray, np.ndarray, mtri.triangulation.Triangulation]:
     """Generates a 2D-grid from 2 max values and returns flattened arrays including triangulation.
 
@@ -44,6 +83,60 @@ def generate_grid(a_max: float = np.nan, b_max: float = np.nan, num_points: int 
     triangles = mtri.Triangulation(a, b)  # Create triangles
 
     return a, b, triangles
+
+
+def scale_xy(x: np.ndarray, y: np.ndarray, scaler: float = 1.) -> Tuple[np.ndarray, np.ndarray]:
+    """Scale x, y coordiantes to scaler value.
+
+    Args:
+        x (np.ndarray): x-coordinate of the points.
+        y (np.ndarray): y-coordinate of the points.
+        scaler (float, optional): Scaler factor. Defaults to 1..
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: Scaled x- and y-coordinates.
+    """
+
+    x *= scaler / np.abs(x).max()
+    y *= scaler / np.abs(y).max()
+
+    return x, y
+
+
+def generate_ellipsoid(theta: np.ndarray, phi: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generates x,y,z-coordinates of an ellipsoid.
+
+    Args:
+        theta (np.ndarray): Theta angle used in angular coordinate systems.
+        phi (np.ndarray): Theta angle used in angular coordinate systems.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: x,y,z-coordinates of the ellipsoid.
+    """
+
+    x = np.cos(phi) * np.sin(theta)
+    y = np.sin(phi) * np.sin(theta)
+    z = np.cos(theta)
+
+    return x, y, z
+
+
+def generate_torus(theta: np.ndarray, phi: np.ndarray, r_ratio: float = 0.5) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generates x,y,z-coordinates of a torus.
+
+    Args:
+        theta (np.array): Theta angle used in angular coordinate systems.
+        phi (np.array): Theta angle used in angular coordinate systems.
+
+    Returns:
+        Tuple[np.array, np.array, np.array]: x,y,z-coordinates of the torus.
+    """
+
+    x = (1 + r_ratio * np.cos(theta)) * np.cos(phi)
+    y = (1 + r_ratio * np.cos(theta)) * np.sin(phi)
+    z = np.sin(theta)
+
+    return x, y, z
 
 
 def generate_spline(array: np.ndarray, order_max: int = 30, knots_max: int = 7, offset: int = 0) -> np.ndarray:
@@ -119,6 +212,49 @@ def generate_twist(x: np.ndarray, y: np.ndarray, twist_frequency: float, num_poi
     return x, y
 
 
+def generate_tilt(x: np.ndarray, y: np.ndarray, z: np.ndarray, x_tilt: float = 1., y_tilt: float = 1.) -> Tuple[np.ndarray, np.ndarray]:
+    """Generates a spline transformed shift of x,y-points along a z-dimension.
+
+    Args:
+        x (np.ndarray): x-coordinate of the points.
+        y (np.ndarray): y-coordinate of the points.
+        z (np.ndarray): z-axis along which to generate the tilt.
+        x_tilt (float, optional): Tilt factor of x-coordinate of the points. Defaults to 1..
+        y_tilt (float, optional): Tilt factor of y-coordinate of the points. Defaults to 1..
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray]: Tilted x- and y-coordinates.
+    """
+
+    # Generate splines and tilt x,y
+    x += x_tilt * generate_spline(z)
+    y += y_tilt * generate_spline(z)
+
+    return x, y
+
+
+def generate_edginess(array: np.ndarray, angle: np.ndarray, edginess: float = 0.) -> Tuple[np.ndarray, np.ndarray]:
+    """Generates edginess from an input array by means of Lamé curve.
+
+    Args:
+        array (np.ndarray): Input array which is transformed.
+        angle (np.ndarray): Input angle which describes the
+                          rotation along the edginess tranformation.
+        edginess (float, optional): Edginess factor. Defaults to 0..
+
+    Returns:
+        Tuple[np.array, np.array]: Lame tranformed x- and y-arrays.
+    """
+
+    x = array * np.sign(np.cos(angle)) * \
+        np.abs(np.cos(angle)) ** (1 / (1 + edginess))
+
+    y = array * np.sign(np.sin(angle)) * \
+        np.abs(np.sin(angle)) ** (1 / (1 + edginess))
+
+    return x, y
+
+
 def generate_modulator(array: np.ndarray, scaler: float = 1, offset: int = 0) -> np.ndarray:
     """Generate scaled spline transformed modulator.
 
@@ -178,82 +314,6 @@ def generate_texture(array: np.ndarray, texture_type: int = 0, amplitude: float 
     return texture
 
 
-def generate_edginess(array: np.ndarray, angle: np.ndarray, edginess: float = 0.) -> Tuple[np.ndarray, np.ndarray]:
-    """Generates edginess from an input array by means of Lamé curve.
-
-    Args:
-        array (np.ndarray): Input array which is transformed.
-        angle (np.ndarray): Input angle which describes the
-                          rotation along the edginess tranformation.
-        edginess (float, optional): Edginess factor. Defaults to 0..
-
-    Returns:
-        Tuple[np.array, np.array]: Lame tranformed x- and y-arrays.
-    """
-
-    x = array * np.sign(np.cos(angle)) * \
-        np.abs(np.cos(angle)) ** (1 / (1 + edginess))
-
-    y = array * np.sign(np.sin(angle)) * \
-        np.abs(np.sin(angle)) ** (1 / (1 + edginess))
-
-    return x, y
-
-
-def generate_tilt(x: np.ndarray, y: np.ndarray, z: np.ndarray, x_tilt: float = 1., y_tilt: float = 1.) -> Tuple[np.ndarray, np.ndarray]:
-    """Generates a spline transformed shift of x,y-points along a z-dimension.
-
-    Args:
-        x (np.ndarray): x-coordinate of the points.
-        y (np.ndarray): y-coordinate of the points.
-        z (np.ndarray): z-axis along which to generate the tilt.
-        x_tilt (float, optional): Tilt factor of x-coordinate of the points. Defaults to 1..
-        y_tilt (float, optional): Tilt factor of y-coordinate of the points. Defaults to 1..
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Tilted x- and y-coordinates.
-    """
-
-    # Generate splines and tilt x,y
-    x += x_tilt * generate_spline(z)
-    y += y_tilt * generate_spline(z)
-
-    return x, y
-
-
-def scale_xy(x: np.ndarray, y: np.ndarray, scaler: float = 1.) -> Tuple[np.ndarray, np.ndarray]:
-    """Scale x, y coordiantes to scaler value.
-
-    Args:
-        x (np.ndarray): x-coordinate of the points.
-        y (np.ndarray): y-coordinate of the points.
-        scaler (float, optional): Scaler factor. Defaults to 1..
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray]: Scaled x- and y-coordinates.
-    """
-
-    x *= scaler / np.abs(x).max()
-    y *= scaler / np.abs(y).max()
-
-    return x, y
-
-
-def get_ijk(triangles: mtri.triangulation.Triangulation) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Get the vertex indices.
-
-    Args:
-        triangles (mtri.triangulation.Triangulation): Triangles from trianglulation
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray]: vertex indices of x,y,z-coordinates.
-    """
-
-    i, j, k = triangles.triangles[:, 0], triangles.triangles[:, 1], triangles.triangles[:, 2]
-
-    return i, j, k
-
-
 def generate_angular_texture(theta: np.ndarray, phi: np.ndarray, parameters: dict) -> dict:
     """Generates random angular textures.
 
@@ -295,42 +355,6 @@ def generate_angular_texture(theta: np.ndarray, phi: np.ndarray, parameters: dic
         textures[f] = texture
 
     return textures
-
-
-def generate_ellipsoid(theta: np.ndarray, phi: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generates x,y,z-coordinates of an ellipsoid.
-
-    Args:
-        theta (np.ndarray): Theta angle used in angular coordinate systems.
-        phi (np.ndarray): Theta angle used in angular coordinate systems.
-
-    Returns:
-        Tuple[np.ndarray, np.ndarray, np.ndarray]: x,y,z-coordinates of the ellipsoid.
-    """
-
-    x = np.cos(phi) * np.sin(theta)
-    y = np.sin(phi) * np.sin(theta)
-    z = np.cos(theta)
-
-    return x, y, z
-
-
-def generate_torus(theta: np.ndarray, phi: np.ndarray, r_ratio: float = 0.5) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Generates x,y,z-coordinates of a torus.
-
-    Args:
-        theta (np.array): Theta angle used in angular coordinate systems.
-        phi (np.array): Theta angle used in angular coordinate systems.
-
-    Returns:
-        Tuple[np.array, np.array, np.array]: x,y,z-coordinates of the torus.
-    """
-
-    x = (1 + r_ratio * np.cos(theta)) * np.cos(phi)
-    y = (1 + r_ratio * np.cos(theta)) * np.sin(phi)
-    z = np.sin(theta)
-
-    return x, y, z
 
 
 def design_rsym(parameters: dict) -> Tuple[np.ndarray, np.ndarray, np.ndarray, mtri.triangulation.Triangulation]:
@@ -454,32 +478,19 @@ def design(config: dict, model: str = "csym") -> Tuple[np.ndarray, np.ndarray, n
     return x, y, z, triangles
 
 
-def generate_parameters(config: dict, model: str = "csym") -> dict:
-    # Init dict
-    parameters = {}
+def get_ijk(triangles: mtri.triangulation.Triangulation) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Get the vertex indices.
 
-    # Generate random parameter from list or value
-    for key, val in config["models"][model]["parameters"].items():
-        if isinstance(val, list):
-            parameters[key] = np.random.uniform(val[0], val[1])
-        else:
-            parameters[key] = val
+    Args:
+        triangles (mtri.triangulation.Triangulation): Triangles from trianglulation
 
-    # Add phi texture type
-    parameters["phi_texture_type"] = np.random.randint(
-        config["models"][model]["num_texture_types"])
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: vertex indices of x,y,z-coordinates.
+    """
 
-    # Add z texture type in case of cylindrical coordinates
-    if model == "csym":
-        parameters["z_texture_type"] = np.random.randint(
-            config["models"][model]["num_texture_types"])
+    i, j, k = triangles.triangles[:, 0], triangles.triangles[:, 1], triangles.triangles[:, 2]
 
-    # Add theta texture time in case of angular coordinates
-    elif model == "rsym":
-        parameters["theta_texture_type"] = np.random.randint(
-            config["models"][model]["num_texture_types"])
-
-    return parameters
+    return i, j, k
 
 
 @staticmethod

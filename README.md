@@ -34,7 +34,9 @@ Generative AI is soooooo hot right now! That is why I desiced to build a generat
 
 The motivation for this projects goes back to my time as a Tech Lead being part of a great team pioniering 3D-printing of glass. We needed to generated different 3D-objects to explore and probe the high-dimensional parameter space of our manifacturing process. To overcome the timedemanding and manual 3D-design process I developed an infancy design tool which was purly based on cylinder symetric 3D-designs. Years later and as a side project I have to descided to restart this project and generalized the design capabilities by introducting rotational symetric design elements. The image below shows nine randomly generated 3D designs.
 
-![Alt text](imgs/image02.jpg)
+<div style="background-color: white; padding: 10px;">
+  <img src="imgs/sample02.jpg" alt="Alt text" style="width: 50%; height: auto;">
+</div>
 
 *Claude Elwood Shannon*, the father of information theory concluded that **information is surprise**. Only when we are surprised, we will learn something profound and important about the underlying dynamics and laws of nature! This is also applicable in the context of arts & design since these disciplines meet at the intersection of control and accident leading to surprise.
 
@@ -150,8 +152,13 @@ r = \left( \left| \frac{x}{a} \right|^n + \left| \frac{y}{b} \right|^n \right)^{
 
 By choosing n carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
 
-![Alt text](imgs/superellipse.png)
+<div style="background-color: white; padding: 10px;">
+  <img src="imgs/superellipse.png" alt="Alt text" style="width: 50%; height: auto;">
+</div>
+
 *Superellipse examples taken from [Wikipedia](https://en.wikipedia.org/wiki/Superellipse)*
+
+
 
 
 
