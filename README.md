@@ -56,7 +56,7 @@ Cylindrical coordinates can be related to Cartesian coordinates using the follow
 ```math
 x = r \cdot \cos(\varphi) \\
 y = r \cdot \sin(\varphi) \\
-z = z \\
+z = z 
 ```
 
 
@@ -78,9 +78,11 @@ Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the
 
 Torus coordinates are a bit more complex to relate to Cartesian coordinates due to the torus' curved geometry. They are given by:
 
-- \( x = (R + r \cdot \cos(\theta)) \cdot \cos(\varphi) \)
-- \( y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi) \)
-- \( z = r \cdot \sin(\theta) \)
+```math
+x = (R + r \cdot \cos(\theta)) \cdot \cos(\varphi) \\
+y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi) \\
+z = r \cdot \sin(\theta)
+```
 
 Where \( R \) is the major radius, \( r \) is the minor radius, \( \theta \) is the azimuthal angle, and \( \phi \) is the angle in the xy-plane.
 
@@ -104,10 +106,10 @@ Once the grid is passed into the formulas for the described coordinate systems, 
 The `triangles` variable is a `matplotlib.tri.Triangulation` object which is used to generate the 3D mesh. It's possible to pass the `triangles` object alongside the corresponding $(x,y,z)$ coordinates e.g. to the `plot_trisurf()` function of the `matplotlib` module to generate the 3D mesh or in this case to pass the `triangles` object to the `plotly` `graph_objs.Mesh3d` object to generate the 3D mesh. Using `plotly` for 3D visualization is a bit more convenient since it allows to interact with the 3D mesh and to rotate it in the browser. It also requires extraction of the vertix indicesfrom the `triangles` object. This is done by `get_ijk()` function in the `engine.py` module.
 
 
-### 2.2. Twist, Tilt & Edginess
+### 2.2. Transformations: Twist, Tilt & Edginess
 Twisting and tilting are essential transformations for generating interesting 3D designs. The following subchapters will explain the math behind these transformations.
 
-#### 2.2.1. Twist aka Rotation about the z-axis
+#### 2.2.1. Twist Transformation
 
 To rotate a point \( P(x, y, z) \) counterclockwise by an angle \( \alpha \) about the z-axis, the rotation matrix is:
 
@@ -138,17 +140,19 @@ R_z(\theta)
 
 To rotate all (x,y) coordinates generated from the 2D-grid by an angle \( \alpha \) about the z-axis, the function `generate_twist()` from the `engine.py` module is used. 
 
-#### 2.2.2. Tilt aka Spline Transformation
+To create an alternation (back- & forth) in rotation, the twist angle can be transformed by Spline Transformation of a random degree and random number of knots. The `generate_twist()` function from the `engine.py` module is using the `sklearn.preprocessing.SplineTranformer` function wraped in the function `generate_split` to generate random B-spline bases for the features. There is no particular reason why I have chosen B-splines, it just works.
 
-The tilt transformation is a bit more complex than the twist transformation. It is based on the concept of gnerating univariate B-spline bases for features. `sklearn` provides a convenient function for generating B-spline bases, namely `sklearn.preprocessing.SplineTranformer`. The `generate_tilt()` function from the `engine.py` module is using this function to generate the B-spline bases for the features. There is no particular reason why I have chosen B-splines, it just works. 
+#### 2.2.2. Tilt Transformation
+
+The tilt transformation is a bit more complex than the twist transformation. It is based on the concept of gnerating univariate B-spline bases for features. `sklearn` provides a convenient function for generating B-spline bases, namely `sklearn.preprocessing.SplineTranformer`. The `generate_tilt()` function from the `engine.py` module is using the function `generate_spline` to generate random B-spline bases for the features. There is no particular reason why I have chosen B-splines, it just works. 
 
 #### 2.2.3. Edginess aka Lamé curve
 
-Transforming an ellipse into a rectangle and vice versa is a very powerful transformation. It is based on the Lamé curve aka Superellipse which is given by:
+Transforming an ellipse into a rectangle or superellipse and vice versa is a very powerful transformation. It is based on the Lamé curve aka Superellipse which is given by:
 
-```math
+$$
 r = \left( \left| \frac{x}{a} \right|^n + \left| \frac{y}{b} \right|^n \right)^{1/n}
-```
+$$
 
 By choosing n carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
 
@@ -165,7 +169,7 @@ By choosing n carefully, the Lamé curve can be transformed into a circle, an el
 
 ### 2.3. Adding modulation and texture
 
-Modulation and texture are used to further enhance the design. Modulation again uses the Splinetrans
+Modulation and texture are used to further enhance the design. The function `generate_modulation` again uses the random Spline transformation to 
 
 ## 3. Design process
 
