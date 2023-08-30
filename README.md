@@ -1,16 +1,17 @@
 # Leonardo Generative Design Engine
 
-**Daniel Hauser**
-*Head of Data Engineering & Analytics, Bank für Tirol und Vorarlberg AG, Austria*
+
 <span style="font-size:small;">
+Daniel Hauser
+
 LinkedIn: https://www.linkedin.com/in/daniel-hauser-77259a159/
 GitHub: **https://github.com/dugi42/**
 </span>
 
 **TL;DR**
-Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter :). This is actually true, check out the `config.yml` file in the repo. Additionally, a webapp based on Plotly Dash is provided to interact with the engine and to generate 3D designs on the fly. The webapp is deployed to Azure Web Services using GitHub-Actions and can be accessed via the following link: https://leonardo.azurewebsites.net/
+Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter. Additionally, a webapp based on Plotly Dash is provided to interact with the engine and to generate 3D designs on the fly. The webapp is deployed to Azure Web Services using GitHub-Actions and can be accessed via the following link: https://leonardo.azurewebsites.net/
 
-**Please feel free to download and 3D-print your favorite designs!**
+**Please feel free to download and 3D-print your favorite designs or do some NTF-stuff with it, if this is still on vouge ;)**
 
 ## 0. Clone, install and run Leonardo on local host
 **Prerequists**
@@ -32,6 +33,9 @@ To execute the engine use the following command
 ```bash
 python3 main.py -c config.yml
 ```
+
+This runs the webapp on local host on port 8050. You can access the webapp via the following link: http://127.0.0.1:8050
+
 
 ## 1. Motivation
 The motivation for this projects goes back to my time as a Tech Lead being part of a great team pioniering 3D-printing of glass. We needed to generated different 3D-objects to explore and probe the high-dimensional parameter space of our manifacturing process. To overcome the timedemanding and manual 3D-design process I developed an infancy design tool which was purly based on cylinder symetric 3D-designs. Years later and as a side project I have descided to restart this project and generalized the design capabilities by introducting rotational symetric design elements. The image below shows nine randomly generated 3D designs.
@@ -159,7 +163,7 @@ $$
 By choosing $n$ carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
 
 <div style="background-color: #FFFFFF; padding: 10px;">
-  <img src="imgs/superellipse.png" alt="Alt text" style="width: 55%; height: auto;">
+  <img src="imgs/superellipse.png" alt="Alt text" style="width: 50%; height: auto;">
 </div>
 
 *Superellipse examples taken from [Wikipedia](https://en.wikipedia.org/wiki/Superellipse)*
@@ -203,8 +207,15 @@ Everytime the design button in the WebApp build in Plotly Dash is clicked, this 
 
 
 
-## 5. Outlook $\rightarrow$ A "Tinder-like" human-in-the-loop design machine ❤️
- 
+## 5. Outlook $\rightarrow$ Towards a "Tinder-like" human-in-the-loop design machine ❤️
+
+### 5.1. Refactor code
+The code is not very well structured and needs to be refactored. I am planning to do this in the near future. I am also planning to add some unit tests to the code.
+
+### 5.2. Add tests to CI/CD pipelines
+I am planning to add some tests to the CI/CD pipelines. This will be done in the near future.
+
+### 5.2. Human-in-the-loop design exploration
  It would be great to add some human-in-the-loop action to the engine. Why do I blieve this is interesintg? Well, I think that the engine is capable of generating a wide range of interesting 3D designs. However, the engine is only capable of generating random design which might not be appealing to the human eye. This is where the human-in-the-loop comes into play. The human-in-the-loop can be used to select the most appealing designs and to use them as a starting point for further design exploration. This can be done by using the `design()` function with in the `engine.py` modul. The `design()` function takes a `design_mode` argument which can be set to `cylindrical` or `spherical`. The `design()` function also takes a `design_params` argument which is a dictionary containing the design parameters. The `design_params` dictionary can be used to set the design parameters to the values of the most appealing design. The `design()` function will then generate a new design based on the most appealing design. This process can be repeated until the most appealing design is found. This is a very simple approach to human-in-the-loop design exploration. However, it is a very powerful one since it allows to explore the high-dimensional and highly correleated design space in a very efficient way.
 
  Some simple methods which come into my mind would be dimensionality reduction methods like Autoencoders. More advanced methods would be Generative Adversarial Nets, Bayesian Optimization or Reinforcement Learning. I am looking forward to implement some of these methods in the future.
