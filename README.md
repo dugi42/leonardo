@@ -53,11 +53,11 @@ The engine is based on three different coordinate systems: cylindrical, spherica
 
 Cylindrical coordinates can be related to Cartesian coordinates using the following equations:
 
-```math
+$$
 x = r \cdot \cos(\varphi) \\
 y = r \cdot \sin(\varphi) \\
 z = z 
-```
+$$
 
 
 Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
@@ -66,11 +66,11 @@ Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is 
 
 Spherical coordinates can be related to Cartesian coordinates using the following equations:
 
-```math
+$$
 x = r \cdot \cos(\varphi) \cdot \sin(\theta) \\
 y = r \cdot \sin(\varphi) \cdot \sin(\theta) \\
 z = r \cdot \cos(\theta)
-```
+$$
 
 Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the xy-plane, and \( \theta \) is the angle from the positive z-axis.
 
@@ -78,11 +78,11 @@ Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the
 
 Torus coordinates are a bit more complex to relate to Cartesian coordinates due to the torus' curved geometry. They are given by:
 
-```math
+$$
 x = (R + r \cdot \cos(\theta)) \cdot \cos(\varphi) \\
 y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi) \\
 z = r \cdot \sin(\theta)
-```
+$$
 
 Where \( R \) is the major radius, \( r \) is the minor radius, \( \theta \) is the azimuthal angle, and \( \phi \) is the angle in the xy-plane.
 
@@ -113,18 +113,18 @@ Twisting and tilting are essential transformations for generating interesting 3D
 
 To rotate a point \( P(x, y, z) \) counterclockwise by an angle \( \alpha \) about the z-axis, the rotation matrix is:
 
-```math
+$$
 R_z(\alpha) = 
 \begin{bmatrix}
     \cos(\alpha) & -\sin(\alpha) & 0 \\
     \sin(\alpha) & \cos(\alpha) & 0 \\
     0 & 0 & 1
 \end{bmatrix}
-```
+$$
 
 The new coordinates \( P'(x', y', z') \) can be found by multiplying the rotation matrix by the original coordinates:
 
-```math
+$$
 \begin{bmatrix}
     x' \\
     y' \\
@@ -136,7 +136,7 @@ R_z(\theta)
     y \\
     z
 \end{bmatrix}
-```
+$$
 
 To rotate all (x,y) coordinates generated from the 2D-grid by an angle \( \alpha \) about the z-axis, the function `generate_twist()` from the `engine.py` module is used. 
 
