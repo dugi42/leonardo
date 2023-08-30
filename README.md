@@ -60,7 +60,7 @@ z = z
 $$
 
 
-Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
+Where $r$ is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
 
 #### 2.0.2. Spherical Coordinates
 
