@@ -54,8 +54,8 @@ The engine is based on three different coordinate systems: cylindrical, spherica
 Cylindrical coordinates can be related to Cartesian coordinates using the following equations:
 
 $$
-x = r \cdot \cos(\varphi) \\
-y = r \cdot \sin(\varphi) \\
+x = r \cdot \cos(\varphi)\\
+y = r \cdot \sin(\varphi)\\
 z = z 
 $$
 
@@ -67,8 +67,8 @@ Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is 
 Spherical coordinates can be related to Cartesian coordinates using the following equations:
 
 $$
-x = r \cdot \cos(\varphi) \cdot \sin(\theta) \\
-y = r \cdot \sin(\varphi) \cdot \sin(\theta) \\
+x = r \cdot \cos(\varphi) \cdot \sin(\theta)\\
+y = r \cdot \sin(\varphi) \cdot \sin(\theta)\\
 z = r \cdot \cos(\theta)
 $$
 
@@ -79,8 +79,8 @@ Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the
 Torus coordinates are a bit more complex to relate to Cartesian coordinates due to the torus' curved geometry. They are given by:
 
 $$
-x = (R + r \cdot \cos(\theta)) \cdot \cos(\varphi) \\
-y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi) \\
+x = (R + r \cdot \cos(\theta)) \cdot \cos(\varphi)\\
+y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi)\\
 z = r \cdot \sin(\theta)
 $$
 
@@ -116,8 +116,8 @@ To rotate a point \( P(x, y, z) \) counterclockwise by an angle \( \alpha \) abo
 $$
 R_z(\alpha) = 
 \begin{bmatrix}
-    \cos(\alpha) & -\sin(\alpha) & 0 \\
-    \sin(\alpha) & \cos(\alpha) & 0 \\
+    \cos(\alpha) & -\sin(\alpha) & 0\\
+    \sin(\alpha) & \cos(\alpha) & 0\\
     0 & 0 & 1
 \end{bmatrix}
 $$
