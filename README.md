@@ -66,7 +66,7 @@ Spherical coordinates can be related to Cartesian coordinates using the followin
 ```math
 x = r \cdot \cos(\varphi) \cdot \sin(\theta) \\
 y = r \cdot \sin(\varphi) \cdot \sin(\theta) \\
-z = r \cdot \cos(\theta) \\
+z = r \cdot \cos(\theta)
 ```
 
 Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the xy-plane, and \( \theta \) is the angle from the positive z-axis.
@@ -98,9 +98,11 @@ triangles = mtri.Triangulation(a, b)  # Create triangles
 The `a` and `b` variables are the linespaces for the angles $\varphi$ and $\theta$ respectively. 
 Once the grid is passed into the formulas for the described coordinate systems, $(x, y, z)$ coordiantes can be calculated for each point in the grid along with the corresponding triangulation. It's important to notice, that
 
-The `triangles` variable is a `matplotlib.tri.Triangulation` object which is used to generate the 3D mesh. It's possible to pass the `triangles` object alongside the corresponding $(x,y,z)$ coordinates e.g. to the `plot_trisurf()` function of the `matplotlib` module to generate the 3D mesh or in this case to pass the `triangles` object to the `plotly` `graph_objs.Mesh3d` object to generate the 3D mesh.
+The `triangles` variable is a `matplotlib.tri.Triangulation` object which is used to generate the 3D mesh. It's possible to pass the `triangles` object alongside the corresponding $(x,y,z)$ coordinates e.g. to the `plot_trisurf()` function of the `matplotlib` module to generate the 3D mesh or in this case to pass the `triangles` object to the `plotly` `graph_objs.Mesh3d` object to generate the 3D mesh. Using `plotly` for 3D visualization is a bit more convenient since it allows to interact with the 3D mesh and to rotate it in the browser. It also requires extraction of the vertix indicesfrom the `triangles` object. This is done by `get_ijk()` function in the `engine.py` module.
+
 
 ### 2.2. Twist, Tilt & Shout
+Twisting and tilting are essential transformations for generating interesting 3D designs. The following subchapters will explain the math behind these transformations.
 
 #### 2.2.1 Rotation about the x-axis
 
