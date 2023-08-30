@@ -197,11 +197,14 @@ There are two design modes. Designs based on cylindrical coordinates and designs
    c. twist and tilt
 5. sclae the coordinates to the desired size
 
+Everytime the design button in the WebApp build in Plotly Dash is clicked, this design process is executed and a new 3D design is generated. A desired design can simply be downloaded as a `export.stl` file and 3D-printed or some NTF stuff with it, if this is still on vouge ;).
 
 ## 4. Deployment to Azure Web Services
 
-## 5. 🌈 OutlookSomewhere, over the rainbow ...
+
+
+## 5. Outlook $\rightarrow$ A "Tinder-like" human-in-the-loop design machine ❤️
  
+ It would be great to add some human-in-the-loop action to the engine. Why do I blieve this is interesintg? Well, I think that the engine is capable of generating a wide range of interesting 3D designs. However, the engine is only capable of generating random design which might not be appealing to the human eye. This is where the human-in-the-loop comes into play. The human-in-the-loop can be used to select the most appealing designs and to use them as a starting point for further design exploration. This can be done by using the `design()` function with in the `engine.py` modul. The `design()` function takes a `design_mode` argument which can be set to `cylindrical` or `spherical`. The `design()` function also takes a `design_params` argument which is a dictionary containing the design parameters. The `design_params` dictionary can be used to set the design parameters to the values of the most appealing design. The `design()` function will then generate a new design based on the most appealing design. This process can be repeated until the most appealing design is found. This is a very simple approach to human-in-the-loop design exploration. However, it is a very powerful one since it allows to explore the high-dimensional and highly correleated design space in a very efficient way.
 
-
-
+ Some simple methods which come into my mind would be dimensionality reduction methods like Autoencoders. More advanced methods would be Generative Adversarial Nets, Bayesian Optimization or Reinforcement Learning. I am looking forward to implement some of these methods in the future.
