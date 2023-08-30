@@ -205,9 +205,24 @@ Everytime the design button in the WebApp build in Plotly Dash is clicked, this 
 
 ## 4. Deployment to Azure Web Services
 
+The WebApp is deployed to Azure Web Services using GitHub-Actions. If you are interested in deploying a Python WebApp to Azure Web Services using GitHub-Actions, follow these steps:
+
+1. Create a Azure Account at portal.azure.com
+2. Create a Subscription and a Resource Group
+3. Create a WebApp Service Plan and a WebApp
+4. Create a Deployment User and a Deployment Credential
+5. Create a GitHub-Secrets for the Deployment Credential   
+
+
+The following steps are executed by the GitHub-Actions workflow when a new commit is pushed to the `main` branch:
+
+-   
+
 
 
 ## 5. Outlook $\rightarrow$ Towards a "Tinder-like" human-in-the-loop design machine ❤️
+
+It would be great to collaborate with someone interested on this project. I am looking forward to your feedback and suggestions for improvements. Please feel free to contact me via LinkedIn or GitHub.
 
 ### 5.1. Refactor code
 The code is not very well structured and needs to be refactored. I am planning to do this in the near future. I am also planning to add some unit tests to the code.
