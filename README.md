@@ -7,8 +7,12 @@ LinkedIn: https://www.linkedin.com/in/daniel-hauser-77259a159/
 GitHub: **https://github.com/dugi42/**
 </span>
 
-## 0. Clone, install and run Leonardo on local host
+**TL;DR**
+Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter :). This is actually true, check out the `config.yml` file in the repo. Additionally, a webapp based on Plotly Dash is provided to interact with the engine and to generate 3D designs on the fly. The webapp is deployed to Azure Web Services using GitHub-Actions and can be accessed via the following link: https://leonardo.azurewebsites.net/
 
+**Please feel free to download and 3D-print your favorite designs!**
+
+## 0. Clone, install and run Leonardo on local host
 **Prerequists**
 ✅ Python 3.X installed (using Anaconda or Miniconda is recommended)
 ✅ GIT installed
@@ -30,9 +34,7 @@ python3 main.py -c config.yml
 ```
 
 ## 1. Motivation
-Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter :). This is actually true, check out the `config.yml` file in the repo.
-
-The motivation for this projects goes back to my time as a Tech Lead being part of a great team pioniering 3D-printing of glass. We needed to generated different 3D-objects to explore and probe the high-dimensional parameter space of our manifacturing process. To overcome the timedemanding and manual 3D-design process I developed an infancy design tool which was purly based on cylinder symetric 3D-designs. Years later and as a side project I have to descided to restart this project and generalized the design capabilities by introducting rotational symetric design elements. The image below shows nine randomly generated 3D designs.
+The motivation for this projects goes back to my time as a Tech Lead being part of a great team pioniering 3D-printing of glass. We needed to generated different 3D-objects to explore and probe the high-dimensional parameter space of our manifacturing process. To overcome the timedemanding and manual 3D-design process I developed an infancy design tool which was purly based on cylinder symetric 3D-designs. Years later and as a side project I have descided to restart this project and generalized the design capabilities by introducting rotational symetric design elements. The image below shows nine randomly generated 3D designs.
 
 <div style="background-color: white; padding: 10px;">
   <img src="imgs/sample02.jpg" alt="Alt text" style="width: 50%; height: auto;">
@@ -72,7 +74,7 @@ y = r \cdot \sin(\varphi) \cdot \sin(\theta)\\
 z = r \cdot \cos(\theta)
 $$
 
-Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the xy-plane, and \( \theta \) is the angle from the positive z-axis.
+Where $r$ is the distance from the origin, $\varphi$ is the angle in the xy-plane, and $\theta$ is the angle from the positive z-axis.
 
 #### 2.0.3. Torus Coordinates
 
@@ -84,7 +86,7 @@ y = (R + r \cdot \cos(\theta)) \cdot \sin(\varphi)\\
 z = r \cdot \sin(\theta)
 $$
 
-Where \( R \) is the major radius, \( r \) is the minor radius, \( \theta \) is the azimuthal angle, and \( \phi \) is the angle in the xy-plane.
+Where $$R$ is the major radius, $r$ is the minor radius, $\theta$ is the azimuthal angle, and $\varphi$ is the angle in the xy-plane.
 
 These equations allow us to translate points between the cylindrical, spherical, and torus coordinate systems and the familiar Cartesian coordinate system.
 
@@ -111,7 +113,7 @@ Twisting and tilting are essential transformations for generating interesting 3D
 
 #### 2.2.1. Twist Transformation
 
-To rotate a point $P(x, y, z)$ counterclockwise by an angle \( \alpha \) about the z-axis, the rotation matrix is:
+To rotate a point $P(x, y, z)$ counterclockwise by an angle $\alpha$ about the z-axis, the rotation matrix is:
 
 $$
 R_z(\alpha) = 
@@ -138,7 +140,7 @@ R_z(\theta)
 \end{bmatrix}
 $$
 
-To rotate all (x,y) coordinates generated from the 2D-grid by an angle \( \alpha \) about the z-axis, the function `generate_twist()` from the `engine.py` module is used. 
+To rotate all $(x, y)$ coordinates generated from the 2D-grid by an angle $\alpha$ about the z-axis, the function `generate_twist()` from the `engine.py` module is used. 
 
 To create an alternation (back- & forth) in rotation, the twist angle can be transformed by Spline Transformation of a random degree and random number of knots. The `generate_twist()` function from the `engine.py` module is using the `sklearn.preprocessing.SplineTranformer` function wraped in the function `generate_split` to generate random B-spline bases for the features. There is no particular reason why I have chosen B-splines, it just works.
 
@@ -175,14 +177,26 @@ The function `generate_modulation()` from the `engine.py` module is used to modu
 #### 2.3.2. Texture
 
 The function `generate_texture()` from the `engine.py` module is used to apply texture to each coordinate of all points generated. The following functions can be applied to each coordinate with a defined set of parameters to generate different textures:
-* Sinusoidal function
-* Sawtooth function
-* Square function
-* Gaussian Pulse function
+1. Sinusoidal function
+2. Sawtooth function
+3. Square function
+4. Gaussian Pulse function
   
 The function `generate_angular_texture` from the `engine.py` modul than applies the texture transformations on the angles $\varphi$ and $\theta$ in case of the spherical coordinate system. The range and specifications of the texture transformations can be defined in the `config.yml` file.
 
 ## 3. Design process
+
+There are two design modes. Designs based on cylindrical coordinates and designs based on spherical coordinates. The design processes excecuted by the `design()` function with in the `engine.py` modul are quiet similar for both modes. The following steps are excuted in the design a 3D object:
+
+1. Random choice of design mode (cylindrical or spherical)
+2. Generate random parameters from the `config.yml` file
+3. Generate a grid of points based on the chosen design mode and random parameters
+4. Dependent on the design mode, generate the following transformations on the corresponding coordinates:
+   a. modulations and textures 
+   b. the edginess 
+   c. twist and tilt
+5. sclae the coordinates to the desired size
+
 
 ## 4. Deployment to Azure Web Services
 

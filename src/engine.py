@@ -10,45 +10,6 @@ import numpy as np
 import matplotlib.tri as mtri
 
 
-def generate_parameters(config: dict, model: str = "csym") -> dict:
-    """
-    Generate a dictionary of parameters for a given model based on a configuration dictionary.
-
-    Args:
-        config (dict): A dictionary containing configuration information for the model.
-        model (str): The name of the model to generate parameters for. Defaults to "csym".
-
-    Returns:
-        dict: A dictionary containing the generated parameters for the model.
-    """
-    
-    # Init dict
-    parameters = {}
-
-    # Generate random parameter from list or value
-    for key, val in config["models"][model]["parameters"].items():
-        if isinstance(val, list):
-            parameters[key] = np.random.uniform(val[0], val[1])
-        else:
-            parameters[key] = val
-
-    # Add phi texture type
-    parameters["phi_texture_type"] = np.random.randint(
-        config["models"][model]["num_texture_types"])
-
-    # Add z texture type in case of cylindrical coordinates
-    if model == "csym":
-        parameters["z_texture_type"] = np.random.randint(
-            config["models"][model]["num_texture_types"])
-
-    # Add theta texture time in case of angular coordinates
-    elif model == "rsym":
-        parameters["theta_texture_type"] = np.random.randint(
-            config["models"][model]["num_texture_types"])
-
-    return parameters
-
-
 def generate_grid(a_max: float = np.nan, b_max: float = np.nan, num_points: int = 256) -> Tuple[np.ndarray, np.ndarray, mtri.triangulation.Triangulation]:
     """Generates a 2D-grid from 2 max values and returns flattened arrays including triangulation.
 
@@ -454,6 +415,45 @@ def design_csym(parameters: dict) -> Tuple[np.ndarray, np.ndarray, np.ndarray, m
     x, y = scale_xy(x, y, parameters["radius"])
 
     return x, y, z, triangles
+
+
+def generate_parameters(config: dict, model: str = "csym") -> dict:
+    """
+    Generate a dictionary of parameters for a given model based on a configuration dictionary.
+
+    Args:
+        config (dict): A dictionary containing configuration information for the model.
+        model (str): The name of the model to generate parameters for. Defaults to "csym".
+
+    Returns:
+        dict: A dictionary containing the generated parameters for the model.
+    """
+    
+    # Init dict
+    parameters = {}
+
+    # Generate random parameter from list or value
+    for key, val in config["models"][model]["parameters"].items():
+        if isinstance(val, list):
+            parameters[key] = np.random.uniform(val[0], val[1])
+        else:
+            parameters[key] = val
+
+    # Add phi texture type
+    parameters["phi_texture_type"] = np.random.randint(
+        config["models"][model]["num_texture_types"])
+
+    # Add z texture type in case of cylindrical coordinates
+    if model == "csym":
+        parameters["z_texture_type"] = np.random.randint(
+            config["models"][model]["num_texture_types"])
+
+    # Add theta texture time in case of angular coordinates
+    elif model == "rsym":
+        parameters["theta_texture_type"] = np.random.randint(
+            config["models"][model]["num_texture_types"])
+
+    return parameters
 
 
 def design(config: dict, model: str = "csym") -> Tuple[np.ndarray, np.ndarray, np.ndarray, mtri.triangulation.Triangulation]:

@@ -250,6 +250,7 @@ def create_callbacks(app: dash.Dash, config: dict) -> List[dict]: # type: ignore
         geometry = design(config, model)
         update_graph = update_figure(geometry, config)
         x, y, z, triangles = geometry
+        
         if generate_button is not None and generate_button > 0:
             export_stl('export.stl', x, y, z, triangles)
         return [update_graph]
