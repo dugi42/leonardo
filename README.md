@@ -50,9 +50,12 @@ The engine is based on three different coordinate systems: cylindrical, spherica
 
 Cylindrical coordinates can be related to Cartesian coordinates using the following equations:
 
-- $ x = r \cdot \cos(\varphi) $
-- $ y = r \cdot \sin(\varphi) $
-- $ z = z $
+```math
+x = r \cdot \cos(\varphi) \\
+y = r \cdot \sin(\varphi) \\
+z = z \\
+```
+
 
 Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is the angle from the positive x-axis, and \( z \) is the height above the xy-plane.
 
@@ -60,9 +63,11 @@ Where \( r \) is the distance from the origin in the xy-plane, \( \varphi \) is 
 
 Spherical coordinates can be related to Cartesian coordinates using the following equations:
 
-- \( x = r \cdot \cos(\varphi) \cdot \sin(\theta) \)
-- \( y = r \cdot \sin(\varphi) \cdot \sin(\theta) \)
-- \( z = r \cdot \cos(\theta) \)
+```math
+x = r \cdot \cos(\varphi) \cdot \sin(\theta) \\
+y = r \cdot \sin(\varphi) \cdot \sin(\theta) \\
+z = r \cdot \cos(\theta) \\
+```
 
 Where \( r \) is the distance from the origin, \( \varphi \) is the angle in the xy-plane, and \( \theta \) is the angle from the positive z-axis.
 
@@ -95,7 +100,7 @@ Once the grid is passed into the formulas for the described coordinate systems, 
 
 The `triangles` variable is a `matplotlib.tri.Triangulation` object which is used to generate the 3D mesh. It's possible to pass the `triangles` object alongside the corresponding $(x,y,z)$ coordinates e.g. to the `plot_trisurf()` function of the `matplotlib` module to generate the 3D mesh or in this case to pass the `triangles` object to the `plotly` `graph_objs.Mesh3d` object to generate the 3D mesh.
 
-### 2.2. Twist, Turn & Shout
+### 2.2. Twist, Tilt & Shout
 
 #### 2.2.1 Rotation about the x-axis
 
