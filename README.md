@@ -157,7 +157,7 @@ $$
 By choosing $n$ carefully, the Lamé curve can be transformed into a circle, an ellipse, a rectangle, or a square. The `generate_edginess()` function from the `engine.py` module is using the Lamé equation to transform the grid of points into a rectangle.
 
 <div style="background-color: #FFFFFF; padding: 10px;">
-  <img src="imgs/superellipse.png" alt="Alt text" style="width: 50%; height: auto;">
+  <img src="imgs/superellipse.png" alt="Alt text" style="width: 25%; height: auto;">
 </div>
 
 *Superellipse examples taken from [Wikipedia](https://en.wikipedia.org/wiki/Superellipse)*
