@@ -16,7 +16,8 @@ The export_stl() function exports the design as an STL file.
 from typing import Tuple, List
 import numpy as np
 import matplotlib.tri as mtri
-import json
+import base64
+import datetime
 
 from plotly import graph_objs as go
 import dash
@@ -174,51 +175,131 @@ def create_app(config: dict) -> dash.Dash:
     figure = init_figure(config)
 
     # Create jumbotron
-    jumbotron = html.Div(
-        dbc.Container(
-            [   html.H4("Surprise yourself!", className="display-4"),
-                html.P(
-                    """The Leonardo engine is designing unique 3D designs.""",
-                    className="lead",
+    # jumbotron = html.Div(
+    #     dbc.Container(
+    #         [   html.H4("Surprise yourself!", className="display-4"),
+    #             html.P(
+    #                 """The Leonardo engine is designing unique 3D designs.""",
+    #                 className="lead",
+    #             ),
+    #             html.P(
+    #                 dbc.Button('Suprise!', id='generate', n_clicks=0, color='light'), className="lead"
+    #             ),
+    #             dbc.Button('Download STL-file', id='download-button',n_clicks=0),
+    #             dcc.Download(id='download'),
+    #         ],
+    #         fluid=True,
+    #         className="h-200 p-5 text-white bg-dark rounded-3",
+    #     ),
+    #     className="p-3 bg-light rounded-3",
+    # )
+
+    # # Create container with two columns
+    # body = dbc.Container(children=[
+    #     dbc.Row([
+    #         dbc.Col([
+    #             jumbotron
+    #         ],
+    #             md=5
+    #         ),
+    #         dbc.Col(
+    #             [
+    #                 figure
+    #             ],
+    #             align='stretch',
+    #             md=7
+    #         ),
+    #     ])
+    # ], className='mt-5')
+
+    # the style arguments for the sidebar. We use position:fixed and a fixed width
+    SIDEBAR_STYLE = {
+        "position": "fixed",
+        "top": 0,
+        "left": 0,
+        "bottom": 0,
+        "width": "35rem",
+        "padding": "2rem 1rem",
+        "background-color": "#f8f9fa",
+    }
+
+    card_png = './imgs/sample02.jpg'
+    card_base64 = base64.b64encode(open(card_png, 'rb').read()).decode('ascii')
+
+    card = dbc.Card(
+        [
+            dbc.CardBody(
+                [
+                    dbc.CardImg(src=f'data:image/png;base64,{card_base64}', top=True),
+                    html.H4("Leonardo Engine", className="card-title"),
+                    html.P(
+                        "The Leonardo engine is designing unique 3D designs.",
+                        className="card-text",
+                    ),
+                html.Div([
+                    dbc.Button('Design', id='generate', n_clicks=0, outline=True, color="dark"),
+                    dbc.Button('Download file', id='download-button',n_clicks=0, outline=True, color="primary"),
+                ],className="d-grid gap-2",
                 ),
-                html.P(
-                    dbc.Button('Suprise!', id='generate', n_clicks=0, color='light'), className="lead"
-                ),
-                dbc.Button('Download STL-file', id='download-button',n_clicks=0),
-                dcc.Download(id='download'),
-                html.P(
-                    html.Label(["Interested into how it is done? Let's get in ", html.A(
-                        'touch!', href='https://www.linkedin.com/in/daniel-hauser-77259a159', target="_blank")]),
-                ),
-            ],
-            fluid=True,
-            className="h-100 p-5 text-white bg-dark rounded-3",
-        ),
-        className="p-3 bg-light rounded-3",
+                ]
+            ),
+        ],
+        #style={"width": "18rem"},
     )
 
-    # Create container with two columns
-    body = dbc.Container(children=[
-        dbc.Row([
-            dbc.Col([
-                jumbotron
-            ],
-                md=5
-            ),
-            dbc.Col(
+    author = dbc.Card(
+        [
+            dbc.Row(
                 [
-                    figure
+                dbc.CardBody(
+                    [
+                        html.H4("About me", className="card-title"),
+                        html.P(
+                            ["Physicist with a passion for solving complex technical and cultural challenges. ",
+                            "I love to build as well as learn new things. ",
+                            "Lets connect @ ",
+                            html.A('LinkedIn', href='https://www.linkedin.com/in/daniel-hauser-77259a159', target="_blank"),],
+                            className="card-text",
+                        ),
+                        html.Small(
+                            f"Last updated  {datetime.datetime.now().strftime('%B %d, %Y')}",
+                            className="card-text text-muted",
+                        ),
+                    ]
+                ),
                 ],
-                align='stretch',
-                md=7
-            ),
-        ])
-    ], className='mt-5')
+                className="g-0 d-flex align-items-center",
+            )
+        ],
+        className="mb-3",
+        style={"maxWidth": "540px"},
+    )
+
+    sidebar = html.Div(
+        [
+            card,
+            dcc.Download(id='download'),
+            author
+    
+        ],
+        style=SIDEBAR_STYLE,
+    )
+
+
 
     # Create app
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.title = 'Leonardo Engine'
-    app.layout = html.Div(children=[body])
+    # app.layout = html.Div(children=[body])
+    app.layout = html.Div(children=[
+                                dbc.Container(children=[
+                                                dbc.Row([
+                                                dbc.Col([sidebar]), 
+                                                dbc.Col([figure]),
+                                                ]),
+                                                ]),
+                                ])
+    
     app._favicon = "./assets/favicon.ico"
 
     return app
