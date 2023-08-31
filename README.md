@@ -1,6 +1,5 @@
 # Leonardo Generative Design Engine
 
-
 <span style="font-size:small;">
 Daniel Hauser
 
@@ -9,7 +8,7 @@ GitHub: **https://github.com/dugi42/**
 </span>
 
 **TL;DR**
-Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter. Additionally, a webapp based on Plotly Dash is provided to interact with the engine and to generate 3D designs on the fly. The webapp is deployed to Azure Web Services using GitHub-Actions and can be accessed via the following link: https://leonardo.azurewebsites.net/
+Generative AI is soooooo hot right now! That is why I desiced to build a generative 3D design engine purely based on basic mathematics (BOOOORING!!!), 100% explainable using 34 parameter. Additionally, a webapp based on Plotly Dash is provided to interact with the engine and to generate 3D designs on the fly. The webapp is deployed to Azure Web Services using GitHub-Actions and can be accessed via the following link: https://leonardoengine.azurewebsites.net/
 
 **Please feel free to download and 3D-print your favorite designs or do some NTF-stuff with it, if this is still on vouge ;)**
 
@@ -31,7 +30,7 @@ conda env create -f environment.yml
 
 To execute the engine use the following command 
 ```bash
-python3 main.py -c config.yml
+python3 app.py
 ```
 
 This runs the webapp on local host on port 8050. You can access the webapp via the following link: http://127.0.0.1:8050
@@ -211,10 +210,15 @@ The WebApp is deployed to Azure Web Services using GitHub-Actions. If you are in
 2. Create a Subscription and a Resource Group
 3. Create a WebApp Service Plan and a WebApp
 4. Create a Deployment User and a Deployment Credential
-5. Create a GitHub-Secrets for the Deployment Credential   
+5. Create a GitHub-Secrets for the Deployment Credential and the Deployment User
+6. Create a GitHub-Actions workflow
+7. Push the code to the GitHub repository
+8. Check the deployment status in the Azure Portal
+9. Access the WebApp via the URL provided in the Azure Portal
+10. Enjoy your WebApp ;)
 
 
-The following steps are executed by the GitHub-Actions workflow when a new commit is pushed to the `main` branch:
+
 
 -   
 
