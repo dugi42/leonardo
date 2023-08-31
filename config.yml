@@ -42,7 +42,7 @@ app:
   host: 0.0.0.0
   port: 8000
   figure: 
-    height: 600
+    height: 800
     margin:
       t: 0
       b: 0
