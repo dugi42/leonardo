@@ -219,7 +219,7 @@ def create_app(config: dict) -> dash.Dash:
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.title = 'Leonardo Engine'
     app.layout = html.Div(children=[body])
-    app._favicon = "favicon.ico"
+    app._favicon = "./assets/favicon.ico"
 
     return app
 
