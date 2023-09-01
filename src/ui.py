@@ -176,15 +176,6 @@ def create_app(config: dict) -> dash.Dash:
 
     
     # the style arguments for the sidebar. We use position:fixed and a fixed width
-    SIDEBAR_STYLE = {
-        "position": "fixed",
-        "top": 0,
-        "left": 0,
-        "bottom": 0,
-        "width": "35rem",
-        "padding": "2rem 1rem",
-        "background-color": "#f8f9fa",
-    }
 
     card_png = './imgs/sample02.jpg'
     card_base64 = base64.b64encode(open(card_png, 'rb').read()).decode('ascii')
@@ -194,9 +185,9 @@ def create_app(config: dict) -> dash.Dash:
             dbc.CardBody(
                 [
                     dbc.CardImg(src=f'data:image/png;base64,{card_base64}', top=True),
-                    html.H4("Leonardo Engine", className="card-title"),
+                    html.H4("Generative Design Engine Leonardo", className="card-title"),
                     html.P(
-                        "The Leonardo engine is designing unique 3D designs.",
+                        "Create unique 3D designs.",
                         className="card-text",
                     ),
                 html.Div([
@@ -209,19 +200,18 @@ def create_app(config: dict) -> dash.Dash:
         ],
         #style={"width": "18rem"},
     )
-
+    # Create author card
     author = dbc.Card(
         [
             dbc.Row(
                 [
                 dbc.CardBody(
                     [
-                        html.H4("About me", className="card-title"),
+                        html.H4("About", className="card-title"),
                         html.P(
-                            ["Physicist with a passion for solving complex technical and cultural challenges. ",
-                            "I love to build as well as learn new things. ",
+                            ["Physicist with a passion for leadership as well as tackling complex technical and cultural challenges. ",
                             "Lets connect @ ",
-                            html.A('LinkedIn', href='https://www.linkedin.com/in/daniel-hauser-77259a159', target="_blank"),],
+                            html.A('LinkedIn', href=config["app"]["linkedin"], target="_blank"),],
                             className="card-text",
                         ),
                         html.Small(
@@ -237,7 +227,8 @@ def create_app(config: dict) -> dash.Dash:
         className="mb-3",
         style={"maxWidth": "540px"},
     )
-
+    
+    # Create sidebar
     sidebar = html.Div(
         [
             card,
@@ -245,7 +236,7 @@ def create_app(config: dict) -> dash.Dash:
             author
     
         ],
-        style=SIDEBAR_STYLE,
+        style=config["app"]["sidebar"]["style"],
     )
 
 
@@ -253,7 +244,6 @@ def create_app(config: dict) -> dash.Dash:
     # Create app
     app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
     app.title = 'Leonardo Engine'
-    # app.layout = html.Div(children=[body])
     app.layout = html.Div(children=[
                                 dbc.Container(children=[
                                                 dbc.Row([

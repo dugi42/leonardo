@@ -41,14 +41,23 @@ models:
 app:
   host: 0.0.0.0
   port: 8000
+  sidebar:
+    style:
+      "position": "fixed"
+      "top": 0
+      "left": 00
+      "bottom": 0
+      "width": "30rem"
+      "padding": "2rem 1rem"
+      "background-color": "#f8f9fa"
   figure: 
-    height: 800
+    height: 700
     margin:
-      t: 0
+      t: 100
       b: 0
       l: 0
       r: 0
-    color: '#00b3c7'
+    color: "#b1b1b1"
     lighting: 
       ambient: 0.1
       diffuse: 1
@@ -60,5 +69,5 @@ app:
       x: 500
       y: 500
       z: 500
-  dropdown: 
+  linkedin: "https://www.linkedin.com/in/daniel-hauser-77259a159"
   text: 
