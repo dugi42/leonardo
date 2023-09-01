@@ -174,44 +174,7 @@ def create_app(config: dict) -> dash.Dash:
     # Initialize figure
     figure = init_figure(config)
 
-    # Create jumbotron
-    # jumbotron = html.Div(
-    #     dbc.Container(
-    #         [   html.H4("Surprise yourself!", className="display-4"),
-    #             html.P(
-    #                 """The Leonardo engine is designing unique 3D designs.""",
-    #                 className="lead",
-    #             ),
-    #             html.P(
-    #                 dbc.Button('Suprise!', id='generate', n_clicks=0, color='light'), className="lead"
-    #             ),
-    #             dbc.Button('Download STL-file', id='download-button',n_clicks=0),
-    #             dcc.Download(id='download'),
-    #         ],
-    #         fluid=True,
-    #         className="h-200 p-5 text-white bg-dark rounded-3",
-    #     ),
-    #     className="p-3 bg-light rounded-3",
-    # )
-
-    # # Create container with two columns
-    # body = dbc.Container(children=[
-    #     dbc.Row([
-    #         dbc.Col([
-    #             jumbotron
-    #         ],
-    #             md=5
-    #         ),
-    #         dbc.Col(
-    #             [
-    #                 figure
-    #             ],
-    #             align='stretch',
-    #             md=7
-    #         ),
-    #     ])
-    # ], className='mt-5')
-
+    
     # the style arguments for the sidebar. We use position:fixed and a fixed width
     SIDEBAR_STYLE = {
         "position": "fixed",
