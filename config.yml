@@ -45,15 +45,15 @@ app:
     style:
       "position": "fixed"
       "top": 0
-      "left": 00
+      "left": 0
       "bottom": 0
       "width": "30rem"
       "padding": "2rem 1rem"
       "background-color": "#f8f9fa"
   figure: 
-    height: 700
+    height: 1000
     margin:
-      t: 100
+      t: 0
       b: 0
       l: 0
       r: 0

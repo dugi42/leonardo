@@ -248,8 +248,8 @@ def create_app(config: dict) -> dash.Dash:
                                 dbc.Container(children=[
                                                 dbc.Row([
                                                 dbc.Col([sidebar]), 
-                                                dbc.Col([figure]),
-                                                ]),
+                                                dbc.Col([figure], style={"margin-left": "-35rem"},),
+                                                ], align="center"),
                                                 ]),
                                 ])
     
