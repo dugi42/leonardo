@@ -3,7 +3,7 @@ import yaml
 import argparse
 
 
-def create_parser() -> argparse.Namespace:
+def __create_parser__() -> argparse.Namespace:
     """
     Creates a parser to parse command line arguments.
 

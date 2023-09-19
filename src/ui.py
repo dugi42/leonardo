@@ -25,7 +25,7 @@ from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
-from src.engine import get_ijk, design, export_stl
+from src.engine import generate
 
 
 def hide_axis() -> dict:
@@ -209,7 +209,7 @@ def create_app(config: dict) -> dash.Dash:
                     [
                         html.H4("About", className="card-title"),
                         html.P(
-                            ["Physicist with a passion for leadership as well as tackling complex technical and cultural challenges. ",
+                            [config["app"]["text"],
                             "Lets connect @ ",
                             html.A('LinkedIn', href=config["app"]["linkedin"], target="_blank"),],
                             className="card-text",
@@ -230,7 +230,7 @@ def create_app(config: dict) -> dash.Dash:
     
     # Create sidebar
     sidebar = html.Div(
-        [
+        children=[
             card,
             dcc.Download(id='download'),
             author
@@ -242,16 +242,14 @@ def create_app(config: dict) -> dash.Dash:
 
 
     # Create app
-    app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+    app = dash.Dash(__name__, external_stylesheets=[dbc.themes.LUX])
     app.title = 'Leonardo Engine'
-    app.layout = html.Div(children=[
-                                dbc.Container(children=[
-                                                dbc.Row([
-                                                dbc.Col([sidebar]), 
-                                                dbc.Col([figure], style={"margin-left": "-35rem"},),
-                                                ], align="center"),
-                                                ]),
+    app.layout = html.Div(children=[dbc.Row([
+                                            dbc.Col([dbc.Container(children=[sidebar])]),
+                                            dbc.Col([dbc.Container(children=[figure])], style = {   'margin-left': '-20px'  }),
+                                            ])
                                 ])
+
     
     app._favicon = "./assets/favicon.ico"
 
@@ -317,3 +315,5 @@ def run_app(config: dict) -> dash.Dash:
     )
 
     return app
+
+
