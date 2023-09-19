@@ -22,10 +22,11 @@ import datetime
 from plotly import graph_objs as go
 import dash
 from dash import dcc, html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
 from src.engine import generate
+
 
 
 def hide_axis() -> dict:

@@ -20,9 +20,9 @@ for n in ns:
     
     ax.plot(x, y, label=f'n={n}')
 
-ax.axis('equal')
 ax.axis('off')
 ax.legend()
 sns.despine()
 plt.tight_layout()
+plt.savefig('lame.png', dpi=300)
 plt.show()
