@@ -1,3 +1,5 @@
+# Parameter space for the design engine. A [min, max] list is sampled uniformly
+# per design; a scalar is used as-is.
 models:
   csym:
     num_texture_types: 4
@@ -13,7 +15,7 @@ models:
       z_frequency: [0, 10]
       z_duty_cycle: [0, 1]
       twist: [-2, 2]
-      edginess: [-2, 5]
+      edginess: [0, 5]
       tilt_x: [-200, 200]
       tilt_y: [-200, 200]
 
@@ -21,7 +23,7 @@ models:
     num_texture_types: 4
     parameters:
       num_points: 250
-      r_ratio: [0, 1]
+      r_ratio: [0.2, 0.9]
       x_scaler: [1, 3]
       y_scaler: [1, 3]
       z_scaler: [1, 4]
@@ -37,37 +39,27 @@ models:
       edginess: [0, 10]
       tilt_x: [-200, 200]
       tilt_y: [-200, 200]
-      
+
+# Exported meshes are scaled so the bounding-box height equals target_height_mm.
+print:
+  target_height_mm: 100
+  min_radius_mm: 1.0
+
 app:
   host: 0.0.0.0
   port: 8000
-  sidebar:
-    style:
-      "position": "fixed"
-      "top": 0
-      "left": 0
-      "bottom": 0
-      "width": "30rem"
-      "padding": "2rem 1rem"
-      "background-color": "#f8f9fa"
-  figure: 
-    height: 1000
-    margin:
-      t: 0
-      b: 0
-      l: 0
-      r: 0
+  # Grid resolution used for the browser preview; export uses models.*.num_points.
+  preview_points: 120
+  figure:
+    height: 800
+    margin: {t: 0, b: 0, l: 0, r: 0}
     color: "#b1b1b1"
-    lighting: 
+    lighting:
       ambient: 0.1
       diffuse: 1
-      fresnel: .1
+      fresnel: 0.1
       specular: 0.2
-      roughness: .1
+      roughness: 0.1
       facenormalsepsilon: 0
-    lightposition: 
-      x: 500
-      y: 500
-      z: 500
+    lightposition: {x: 500, y: 500, z: 500}
   linkedin: "https://www.linkedin.com/in/daniel-hauser-77259a159"
-  text: 
