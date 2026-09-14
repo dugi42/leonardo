@@ -37,7 +37,9 @@ class Design:
         return f"{self.seed}_{self.model}"
 
     def to_trimesh(self) -> trimesh.Trimesh:
-        return trimesh.Trimesh(self.vertices, self.faces, process=False)
+        return trimesh.Trimesh(
+            self.vertices, self.faces, process=False, metadata={"name": self.stem}
+        )
 
 
 def pick_model(rng: np.random.Generator) -> str:

@@ -1,0 +1,10 @@
+.git
+.venv
+.github
+docs
+imgs
+output
+tests
+**/__pycache__
+*.stl
+*.3mf
