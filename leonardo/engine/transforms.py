@@ -42,13 +42,19 @@ def lame(r: np.ndarray, angle: np.ndarray, edginess: float) -> tuple[np.ndarray,
     return r * np.sign(c) * np.abs(c) ** p, r * np.sign(s) * np.abs(s) ** p
 
 
-def fit_to_print(vertices: np.ndarray, target_height: float) -> np.ndarray:
-    """Uniform scale so z-extent == target_height, z-min at 0, xy centred at origin."""
+def fit_to_print(
+    vertices: np.ndarray, target_height: float, max_footprint: float = np.inf
+) -> np.ndarray:
+    """Uniform scale so z-extent == target_height (or less, if the xy extent would
+    exceed max_footprint), z-min at 0, xy centred at origin."""
     v = np.asarray(vertices, dtype=float)
     lo, hi = v.min(axis=0), v.max(axis=0)
     height = hi[2] - lo[2]
     if height <= 0:
         raise ValueError("degenerate design: zero height")
+    footprint = float(max(hi[0] - lo[0], hi[1] - lo[1]))
     scale = target_height / height
+    if footprint > 0:
+        scale = min(scale, max_footprint / footprint)
     centre = np.array([(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, lo[2]])
     return (v - centre) * scale

@@ -16,8 +16,9 @@ models:
       z_duty_cycle: [0, 1]
       twist: [-2, 2]
       edginess: [0, 5]
-      tilt_x: [-200, 200]
-      tilt_y: [-200, 200]
+      # fraction of height the axis may wander sideways
+      tilt_x: [-0.5, 0.5]
+      tilt_y: [-0.5, 0.5]
 
   rsym:
     num_texture_types: 4
@@ -36,13 +37,13 @@ models:
       e1_twist: [-2, 2]
       e2_twist: [-2, 2]
       e3_twist: [-2, 2]
-      edginess: [0, 10]
-      tilt_x: [-200, 200]
-      tilt_y: [-200, 200]
 
-# Exported meshes are scaled so the bounding-box height equals target_height_mm.
+# Exported meshes are scaled uniformly so the bounding-box height equals
+# target_height_mm, then scaled down further if the xy footprint exceeds
+# max_footprint_mm (180 fits every Bambu bed incl. A1 mini).
 print:
   target_height_mm: 100
+  max_footprint_mm: 180
   min_radius_mm: 1.0
 
 app:

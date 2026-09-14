@@ -17,7 +17,7 @@ def test_range_must_be_min_max(tmp_path):
     p = tmp_path / "c.yml"
     p.write_text(
         "models:\n  csym:\n    num_texture_types: 4\n    parameters:\n      radius: [50, 30]\n"
-        "print: {target_height_mm: 100, min_radius_mm: 1}\napp: {}\n"
+        "print: {target_height_mm: 100, max_footprint_mm: 180, min_radius_mm: 1}\napp: {}\n"
     )
     with pytest.raises(ConfigError, match=r"models\.csym\.parameters\.radius"):
         load_config(p)

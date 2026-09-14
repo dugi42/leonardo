@@ -14,6 +14,13 @@ def test_fit_to_print():
     assert v[0, 0] == 1  # input untouched
 
 
+def test_fit_to_print_footprint_limit():
+    v = np.array([[0, 0, 0], [400, 0, 100.0]])
+    out = fit_to_print(v, 100.0, max_footprint=180.0)
+    assert np.isclose(out[:, 0].max() - out[:, 0].min(), 180.0)
+    assert np.isclose(out[:, 2].max(), 45.0)
+
+
 def test_fit_to_print_zero_height_raises():
     with pytest.raises(ValueError):
         fit_to_print(np.zeros((3, 3)), 100.0)

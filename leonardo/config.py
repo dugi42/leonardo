@@ -22,6 +22,7 @@ class ModelConfig:
 @dataclass(frozen=True)
 class PrintConfig:
     target_height_mm: float
+    max_footprint_mm: float
     min_radius_mm: float
 
 
@@ -73,6 +74,7 @@ def load_config(path: str | Path) -> Config:
     pr = raw["print"]
     print_cfg = PrintConfig(
         target_height_mm=_number(pr.get("target_height_mm"), "print.target_height_mm"),
+        max_footprint_mm=_number(pr.get("max_footprint_mm"), "print.max_footprint_mm"),
         min_radius_mm=_number(pr.get("min_radius_mm"), "print.min_radius_mm"),
     )
     return Config(models=models, print=print_cfg, app=dict(raw["app"]))
