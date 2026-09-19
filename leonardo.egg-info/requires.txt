@@ -6,7 +6,3 @@ dash>=3.0
 dash-bootstrap-components>=2.0
 plotly>=5.20
 gunicorn>=22
-
-[dev]
-pytest>=8
-ruff>=0.5
