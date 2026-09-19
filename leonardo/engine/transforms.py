@@ -18,7 +18,8 @@ def twist(
         return a.copy(), b.copy()
     alpha = 2.0 * np.pi * turns * direction * normalize01(along)
     if fuzzy:
-        alpha = random_spline(alpha, rng)
+        # Modulate the twist rate along the axis by a factor in [0, 2]; keeps `turns`.
+        alpha = alpha * (1.0 + random_spline(alpha, rng))
     ca, sa = np.cos(alpha), np.sin(alpha)
     return a * ca - b * sa, a * sa + b * ca
 
@@ -36,10 +37,14 @@ def tilt(
 
 
 def lame(r: np.ndarray, angle: np.ndarray, edginess: float) -> tuple[np.ndarray, np.ndarray]:
-    """Superellipse (Lame curve) x, y from radius and angle. edginess=0 is a circle."""
-    p = 1.0 / (1.0 + edginess)
+    """Superellipse (Lame curve) x, y from radius and polar angle. edginess=0 is a circle.
+
+    Polar form: the point lies on the ray at `angle`, so samples stay evenly spread
+    around the curve and the section remains star-shaped (no folding)."""
+    n = 2.0 * (1.0 + edginess)
     c, s = np.cos(angle), np.sin(angle)
-    return r * np.sign(c) * np.abs(c) ** p, r * np.sign(s) * np.abs(s) ** p
+    rho = r / (np.abs(c) ** n + np.abs(s) ** n) ** (1.0 / n)
+    return rho * c, rho * s
 
 
 def fit_to_print(

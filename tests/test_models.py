@@ -57,3 +57,17 @@ def test_unknown_model_raises(cfg):
 def test_mesh_error_type():
     err = MeshError(3, "csym", "not watertight")
     assert err.seed == 3 and err.model == "csym" and "watertight" in str(err)
+
+
+@pytest.mark.parametrize("seed", SEEDS)
+def test_rsym_is_volume(cfg, seed):
+    assert generate(cfg, seed, "rsym", num_points=60).to_trimesh().is_volume
+
+
+@pytest.mark.parametrize("seed", SEEDS[:20])
+def test_csym_seam_is_not_special(cfg, seed):
+    n = 60
+    v = generate(cfg, seed, "csym", num_points=n).vertices[: n * n].reshape(n, n, 3)
+    seam = np.linalg.norm(v[:, 0] - v[:, -1], axis=1).max()
+    neighbour = np.linalg.norm(np.diff(v, axis=1), axis=2).max()
+    assert seam <= neighbour * 1.05

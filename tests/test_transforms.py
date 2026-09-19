@@ -57,3 +57,22 @@ def test_tilt_shifts_by_function_of_z():
     np.testing.assert_array_equal(y2, y)
     assert np.allclose(x2[0:3], x2[0])  # same z -> same shift
     assert not np.allclose(x2, 0)
+
+
+def test_lame_is_star_shaped_and_evenly_sampled():
+    ang = np.linspace(0, 2 * np.pi, 200, endpoint=False)
+    x, y = lame(np.full(200, 1.0), ang, 5.0)
+    np.testing.assert_allclose(np.arctan2(y, x) % (2 * np.pi), ang, atol=1e-9)
+    step = np.hypot(np.diff(x), np.diff(y))
+    assert step.max() / step.min() < 3
+
+
+def test_fuzzy_twist_keeps_turns():
+    a = np.ones(50)
+    b = np.zeros(50)
+    z = np.linspace(0, 1, 50)
+    big = False
+    for seed in range(20):
+        a2, b2 = twist(a, b, z, 2.0, np.random.default_rng(seed))
+        big |= np.abs(np.unwrap(np.arctan2(b2, a2))).max() > np.pi
+    assert big

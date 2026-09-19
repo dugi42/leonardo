@@ -79,6 +79,9 @@ leonardo serve --port 8050      # Dash dev server
 `pytest` checks, among other things, that 50 seeds per model produce watertight,
 consistently wound, positive-volume meshes within the configured print size.
 
+Versioning follows [SemVer](https://semver.org): a change that alters the object
+a seed produces is a major release.
+
 ### How it works
 
 `leonardo/engine/`:
@@ -87,8 +90,8 @@ consistently wound, positive-volume meshes within the configured print size.
 |---|---|
 | `grid.py` | structured parametric grid; two triangles per quad, seams closed by index modulo, fan caps for open ends |
 | `spline.py` | random B-spline modulators (scipy) |
-| `texture.py` | sine / sawtooth / square / gausspulse surface textures |
-| `transforms.py` | twist, tilt, superellipse edges, fit-to-print scaling (pure functions) |
+| `texture.py` | sine / sawtooth / square / gausspulse-train surface textures; integer frequency on wrapped angles so seams close |
+| `transforms.py` | twist, tilt, polar superellipse edges, fit-to-print scaling (pure functions) |
 | `models.py` | `csym` (cylindrical) and `rsym` (ellipsoid / torus) base models |
 | `params.py` | samples a parameter set from the ranges in `config.yml` |
 | `mesh.py` | `generate(config, seed, model)` -> `Design`; watertight check; STL/3MF export via trimesh |
@@ -97,6 +100,30 @@ All randomness flows through one `numpy.random.Generator` seeded per design, so
 a seed fully identifies an object. The web preview uses a coarser grid
 (`app.preview_points`) than the export (`models.*.num_points`); both come from
 the same seed and parameters.
+
+A seed identifies an object only for a given major version: any change to the
+geometry maths changes what a seed produces, and is released as a new major
+version (see `CHANGELOG.md`).
+
+### Geometry guarantees
+
+Both models are built so that the mesh cannot fold or cross itself:
+
+- `csym`: every cross-section is star-shaped around the axis. The radius is a
+  positive function of `(z, phi)`, the superellipse uses its polar form (the
+  point stays on the ray at angle `phi`), and twist and tilt act per z-slice.
+- `rsym` ellipsoid: a single positive scale factor per vertex (theta texture
+  times phi texture) scales the position vector, so the surface stays
+  star-shaped around the origin. The phi texture fades to zero at the poles.
+- `rsym` torus: the same factor scales the tube radius and is capped below the
+  ring radius, so the tube never crosses itself.
+- Textures on wrapped angles (`phi`, torus `theta`) round their frequency to an
+  integer, so the wave closes on itself and the seam at `phi = 0` is invisible.
+
+`tests/test_models.py` checks, for 50 seeds per model, that meshes are
+watertight, consistently wound, positive-volume, a valid volume (`rsym`), scaled
+to the print size, and that the csym seam edge is no longer than any neighbouring
+edge.
 
 ## License
 

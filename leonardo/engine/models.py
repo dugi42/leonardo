@@ -25,7 +25,8 @@ def design_csym(p: dict, pc: PrintConfig, rng: np.random.Generator) -> tuple[np.
     profile = normalize01(random_spline(z, rng))
     r = radius * (p["radius_offset"] + (1.0 - p["radius_offset"]) * profile)
     r = r * texture(
-        phi, p["phi_texture_type"], p["phi_amplitude"], p["phi_frequency"], p["phi_duty_cycle"], rng
+        phi, p["phi_texture_type"], p["phi_amplitude"], p["phi_frequency"], p["phi_duty_cycle"],
+        rng, wrap=True,
     )
     r = r * texture(
         z / height * 2 * np.pi,
@@ -48,21 +49,25 @@ def design_csym(p: dict, pc: PrintConfig, rng: np.random.Generator) -> tuple[np.
     return np.column_stack([x, y, z]), faces
 
 
-def _angular_textures(
-    theta: np.ndarray, phi: np.ndarray, p: dict, rng: np.random.Generator
-) -> dict[str, np.ndarray]:
-    """Per-axis multiplicative texture, each riding on a randomly chosen angle."""
-    angles = {"theta": theta, "phi": phi}
-    out = {}
-    for axis in ("x", "y", "z"):
-        label = "theta" if rng.integers(2) == 0 else "phi"
-        t = texture(
-            angles[label],
-            p[f"{label}_texture_type"], p[f"{label}_amplitude"],
-            p[f"{label}_frequency"], p[f"{label}_duty_cycle"], rng,
-        )
-        out[axis] = t * p[f"{axis}_scaler"]
-    return out
+def _radial_texture(
+    theta: np.ndarray, phi: np.ndarray, p: dict, rng: np.random.Generator, wrap_theta: bool
+) -> np.ndarray:
+    """One positive scale factor per vertex: theta texture times phi texture.
+
+    The phi texture fades with sin(theta) on the ellipsoid so all vertices of a pole
+    ring agree with the pole itself. A single scalar keeps the surface star-shaped
+    (ellipsoid) or the tube star-shaped (torus), so textures never fold the mesh."""
+    s_theta = texture(
+        theta, p["theta_texture_type"], p["theta_amplitude"], p["theta_frequency"],
+        p["theta_duty_cycle"], rng, wrap=wrap_theta,
+    )
+    s_phi = texture(
+        phi, p["phi_texture_type"], p["phi_amplitude"], p["phi_frequency"],
+        p["phi_duty_cycle"], rng, wrap=True,
+    )
+    if not wrap_theta:
+        s_phi = 1.0 + np.sin(theta) * (s_phi - 1.0)
+    return np.maximum(s_theta * s_phi, 0.1)
 
 
 def design_rsym(p: dict, pc: PrintConfig, rng: np.random.Generator) -> tuple[np.ndarray, np.ndarray]:
@@ -71,10 +76,11 @@ def design_rsym(p: dict, pc: PrintConfig, rng: np.random.Generator) -> tuple[np.
     torus = bool(rng.integers(2))
     if torus:
         theta, phi = make_grid(n, n, (0.0, 2 * np.pi), (0.0, 2 * np.pi), True, True)
-        rr = p["r_ratio"]
-        x = (1 + rr * np.cos(theta)) * np.cos(phi)
-        y = (1 + rr * np.cos(theta)) * np.sin(phi)
-        z = rr * np.sin(theta)
+        # Textured tube radius, kept below the ring radius so the tube cannot cross itself.
+        tube = np.minimum(p["r_ratio"] * _radial_texture(theta, phi, p, rng, True), 0.95)
+        x = (1 + tube * np.cos(theta)) * np.cos(phi)
+        y = (1 + tube * np.cos(theta)) * np.sin(phi)
+        z = tube * np.sin(theta)
         faces = grid_faces(n, n, True, True)
     else:
         # Interior theta rings only; poles appended as fan centres.
@@ -84,13 +90,13 @@ def design_rsym(p: dict, pc: PrintConfig, rng: np.random.Generator) -> tuple[np.
         )
         theta = np.append(theta, [0.0, np.pi])
         phi = np.append(phi, [0.0, 0.0])
-        x = np.cos(phi) * np.sin(theta)
-        y = np.sin(phi) * np.sin(theta)
-        z = np.cos(theta)
+        s = _radial_texture(theta, phi, p, rng, False)
+        x = np.cos(phi) * np.sin(theta) * s
+        y = np.sin(phi) * np.sin(theta) * s
+        z = np.cos(theta) * s
         faces = np.vstack([grid_faces(n, n, False, True), cap_faces(n, n, n * n, n * n + 1)])
 
-    tex = _angular_textures(theta, phi, p, rng)
-    x, y, z = x * tex["x"], y * tex["y"], z * tex["z"]
+    x, y, z = x * p["x_scaler"], y * p["y_scaler"], z * p["z_scaler"]
 
     x, y = twist(x, y, z, p["e1_twist"], rng)
     x, z = twist(x, z, y, p["e2_twist"], rng)
