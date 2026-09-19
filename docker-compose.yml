@@ -1,0 +1,11 @@
+services:
+  leonardo:
+    build: .
+    image: ghcr.io/dugi42/leonardo:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/data
+    environment:
+      LEONARDO_CONFIG: /app/config.yml
+    restart: unless-stopped

@@ -54,3 +54,8 @@ Thumbs.db
 *.wmv
 
 
+
+# venv / outputs
+.venv/
+output/
+*.3mf
