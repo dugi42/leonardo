@@ -20,7 +20,7 @@ dependencies = [
   "gunicorn>=22",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = ["pytest>=8", "ruff>=0.5"]
 
 [project.scripts]

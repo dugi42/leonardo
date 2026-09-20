@@ -68,13 +68,17 @@ file and exits 1 if any seed was skipped because its mesh failed validation.
 
 ## Development
 
+Requires [uv](https://docs.astral.sh/uv/) (`curl -LsSf https://astral.sh/uv/install.sh | sh`).
+
 ```bash
-python3.12 -m venv .venv && . .venv/bin/activate
-pip install -e '.[dev]'
-pytest
-ruff check .
-leonardo serve --port 8050      # Dash dev server
+uv sync                            # creates .venv from uv.lock, installs dev tools
+uv run pytest
+uv run ruff check .
+uv run leonardo serve --port 8050  # Dash dev server
 ```
+
+`uv.lock` pins every dependency; `uv lock --upgrade` refreshes it. The Docker
+image and CI install from the same lock file (`uv sync --locked`).
 
 `pytest` checks, among other things, that 50 seeds per model produce watertight,
 consistently wound, positive-volume meshes within the configured print size.

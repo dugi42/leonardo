@@ -7,6 +7,14 @@ All notable changes to this project are documented here. The format follows
 Because a seed maps to a design through the geometry code, any change that
 alters what a seed produces is a **major** release.
 
+## [Unreleased]
+
+### Changed
+
+- Project tooling moved from pip to [uv](https://docs.astral.sh/uv/): dev
+  dependencies live in `[dependency-groups]`, `uv.lock` pins the full tree, and
+  the Dockerfile and CI install with `uv sync --locked`. Local setup is `uv sync`.
+
 ## [2.0.0] - 2026-09-19
 
 ### Changed (breaking)
@@ -46,5 +54,6 @@ reproducible with 2.x.
 Original notebook-style generator: `csym` and `rsym` models, STL export, Azure
 deployment scripts. No seeding.
 
+[Unreleased]: https://github.com/dugi42/leonardo/compare/v2.0.0...HEAD
 [2.0.0]: https://github.com/dugi42/leonardo/compare/v.1.0.0...v2.0.0
 [1.0.0]: https://github.com/dugi42/leonardo/releases/tag/v.1.0.0
