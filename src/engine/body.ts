@@ -1,4 +1,5 @@
 import type { Body } from '../design/schema';
+import type { Rim } from './profile';
 import type { PrintScale } from './fit';
 import type { Mesh } from './mesh';
 import type { Field } from './surface';
@@ -76,10 +77,11 @@ class Builder {
   }
 }
 
-function outerRings(b: Builder, field: Field, scale: PrintScale): number[] {
+/** Outer wall rings from the bed up to `topMm` (the print height unless a lip sits on top). */
+function outerRings(b: Builder, field: Field, scale: PrintScale, topMm = scale.heightMm): number[] {
   const rings: number[] = [];
   for (let i = 0; i < field.nh; i++) {
-    const z = field.h[i] * field.height * scale.sigma;
+    const z = field.h[i] * topMm;
     rings.push(b.ring(z, (j) => field.r[i * field.nphi + j] * scale.sigma));
   }
   for (let i = 0; i + 1 < rings.length; i++) b.outer(rings[i], rings[i + 1]);
@@ -107,11 +109,16 @@ function outerRadiusAt(field: Field, scale: PrintScale, h: number): (j: number) 
 const innerOf = (outerMm: number, wallMm: number) =>
   Math.min(outerMm - 0.4, Math.max(0.5, outerMm - wallMm));
 
+/** Arc rings between the last outer and inner rings: a half-round lip whose apex is at `apexMm`. */
+const LIP_STEPS = 8;
+
 /** Open-top vessel with real walls and floor; with holeMm > 0 the floor gets a drainage hole. */
-function vessel(field: Field, scale: PrintScale, body: Body, withHole: boolean): Mesh {
+function vessel(field: Field, scale: PrintScale, body: Body, withHole: boolean, rim: Rim): Mesh {
   const b = new Builder(field, scale);
-  const outer = outerRings(b, field, scale);
-  const height = scale.heightMm;
+  // A round lip of diameter `wall` sits on top, so the walls stop half a wall lower.
+  const lip = rim === 'round' ? body.wallMm / 2 : 0;
+  const height = scale.heightMm - lip;
+  const outer = outerRings(b, field, scale, height);
   const floorMm = Math.min(body.floorMm, height * 0.5);
   const hFloor = floorMm / height;
 
@@ -122,7 +129,29 @@ function vessel(field: Field, scale: PrintScale, body: Body, withHole: boolean):
     return b.ring(h * height, (j) => innerOf(outerAt(j), body.wallMm));
   });
   for (let i = 0; i + 1 < inner.length; i++) b.inner(inner[i], inner[i + 1]);
-  b.annulusUp(inner[inner.length - 1], outer[outer.length - 1]);
+  const outerTop = outer[outer.length - 1];
+  const innerTop = inner[inner.length - 1];
+  if (lip > 0) {
+    // Half circle per phi from the outer top point over to the inner top point.
+    const ro = outerRadiusAt(field, scale, 1);
+    let prev = outerTop;
+    for (let s = 1; s < LIP_STEPS; s++) {
+      const theta = (Math.PI * s) / LIP_STEPS;
+      const ringZ = height + lip * Math.sin(theta);
+      // Rings may not be planar per phi, so build them point by point via a radius callback
+      // at the arc's mean height; the z of each point follows the local wall width.
+      const ring = b.ring(ringZ, (j) => {
+        const o = ro(j);
+        const i = innerOf(o, body.wallMm);
+        return (o + i) / 2 + ((o - i) / 2) * Math.cos(theta);
+      });
+      b.outer(prev, ring);
+      prev = ring;
+    }
+    b.outer(prev, innerTop);
+  } else {
+    b.annulusUp(innerTop, outerTop);
+  }
 
   let holeR = withHole ? body.holeMm / 2 : 0;
   if (holeR > 0) {
@@ -148,14 +177,14 @@ function vessel(field: Field, scale: PrintScale, body: Body, withHole: boolean):
   return b.mesh();
 }
 
-export function buildBody(field: Field, scale: PrintScale, body: Body): Mesh {
+export function buildBody(field: Field, scale: PrintScale, body: Body, rim: Rim = 'flat'): Mesh {
   switch (body.kind) {
     case 'solid':
     case 'vase':
       return solid(field, scale);
     case 'hollow':
-      return vessel(field, scale, body, false);
+      return vessel(field, scale, body, false, rim);
     case 'planter':
-      return vessel(field, scale, body, true);
+      return vessel(field, scale, body, true, rim);
   }
 }

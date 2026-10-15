@@ -22,5 +22,5 @@ export function buildMesh(design: Design, res: Resolution): BuiltMesh {
   const solidTop = design.body.kind === 'solid' || design.body.kind === 'vase';
   const field = radiusField(coefficients(design.seed, design.spectrum), design, nh, nphi, solidTop);
   const scale = printScale(field, design.print);
-  return { mesh: buildBody(field, scale, design.body), field, scale };
+  return { mesh: buildBody(field, scale, design.body, design.form.rim), field, scale };
 }
