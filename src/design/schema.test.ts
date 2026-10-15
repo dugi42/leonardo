@@ -85,3 +85,9 @@ describe('look', () => {
     expect(normaliseDesign({ seed: 1, look: { color: 'cyan', finish: 'silk' } })!.look).toEqual({ color: 'cyan', finish: 'silk' });
   });
 });
+
+describe('3.0 designs from history', () => {
+  it('open as cylinders with the old proportions, like 3.0 links', () => {
+    expect(normaliseDesign({ v: 1, seed: 9 })!.form).toEqual({ archetype: 'cylinder', proportion: 0.56, rim: 'flat', foot: 0 });
+  });
+});

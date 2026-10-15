@@ -88,7 +88,7 @@ is now in the log domain, and the changelog says so.
 ## C. Spectrum editor
 
 - **Colour:** magnitude relative to the strongest term over two decades. Empty cells
-  draw as a faint outline. Tick labels every 4 cells on both axes.
+  draw as a faint outline. Tick labels every 8 cells on both axes.
 - **Hover:** a fixed-height status line reads `k 3 · m 8 · 0.042 · ×1.6` (no layout
   jump). While a cell is hovered, the 3D model is tinted by that cell's basis function
   `cos(πkh)·cos(mφ − phase)`: positive regions amber, negative teal.

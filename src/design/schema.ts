@@ -149,7 +149,9 @@ export function normaliseDesign(input: unknown): Design | null {
   const body = isObject(input.body) ? input.body : {};
   const print = isObject(input.print) ? input.print : {};
   const kind = BODY_KINDS.includes(body.kind as BodyKind) ? (body.kind as BodyKind) : d.body.kind;
-  const form = isObject(input.form) ? input.form : {};
+  // 3.0 designs (v1) predate forms: they were cylinders of raw height 2.5 (proportion 0.56).
+  const legacy = input.v === 1 ? { archetype: 'cylinder', proportion: 0.56, rim: 'flat', foot: 0 } : {};
+  const form = isObject(input.form) ? input.form : legacy;
   const archetype = ARCHETYPE_IDS.includes(form.archetype as ArchetypeId)
     ? (form.archetype as ArchetypeId)
     : d.form.archetype;

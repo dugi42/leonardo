@@ -57,12 +57,12 @@ export function decodeDesign(payload: string): Design | null {
     return null;
   }
   if (!wire || (wire.v !== 1 && wire.v !== 2)) return null;
-  // 3.0 designs were cylinders with raw height 2.5, which is proportion 0.56.
-  const f = wire.v === 1 ? [0, 0.56, 0, 0] : (wire.f ?? []);
+  const f = wire.f ?? [];
   const [bulge, flutes, roughness, symmetry, ribs, ribFrequency] = wire.r ?? [];
   return normaliseDesign({
+    v: wire.v,
     seed: wire.s,
-    form: { archetype: ARCHETYPE_IDS[f[0] ?? -1], proportion: f[1], rim: RIMS[f[2] ?? -1], foot: f[3] },
+    form: wire.v === 1 ? undefined : { archetype: ARCHETYPE_IDS[f[0] ?? -1], proportion: f[1], rim: RIMS[f[2] ?? -1], foot: f[3] },
     spectrum: {
       K: wire.k?.[0],
       M: wire.k?.[1],
