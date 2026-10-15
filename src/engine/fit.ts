@@ -1,5 +1,5 @@
 import type { PrintSettings } from '../design/schema';
-import { BED_MARGIN_MM, H0 } from './constants';
+import { BED_MARGIN_MM } from './constants';
 import { printerById } from './printers';
 import type { Field } from './surface';
 
@@ -31,16 +31,17 @@ export function printScale(field: Field, print: PrintSettings): PrintScale {
       if (y > maxY) maxY = y;
     }
   }
-  const wanted = print.heightMm / H0;
+  const H = field.height;
+  const wanted = print.heightMm / H;
   const sigma = Math.min(
     wanted,
-    printer.height / H0,
+    printer.height / H,
     (printer.bed[0] - 2 * BED_MARGIN_MM) / (maxX - minX),
     (printer.bed[1] - 2 * BED_MARGIN_MM) / (maxY - minY),
   );
   return {
     sigma,
-    heightMm: sigma * H0,
+    heightMm: sigma * H,
     capped: sigma < wanted - 1e-9,
     offset: [(-(minX + maxX) / 2) * sigma, (-(minY + maxY) / 2) * sigma],
   };

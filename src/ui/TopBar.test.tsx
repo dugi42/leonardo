@@ -7,12 +7,14 @@ import { listHistory, clearHistory } from '../storage/history';
 import { TopBar } from './TopBar';
 
 const download = vi.fn();
+const exportMock = vi.hoisted(() => ({ calls: 0, release: null as null | (() => void) }));
 vi.mock('../worker/client', () => ({
-  exportInBackground: vi.fn(async (_d: unknown, format: string) => ({
-    bytes: new Uint8Array([1]),
-    name: `leonardo-1-solid.${format}`,
-    mime: 'model/stl',
-  })),
+  exportInBackground: vi.fn(async (_d: unknown, format: string) => {
+    exportMock.calls++;
+    if (exportMock.release === null) await Promise.resolve();
+    else await new Promise<void>((r) => (exportMock.release = r));
+    return { bytes: new Uint8Array([1]), name: `leonardo-1-solid.${format}`, mime: 'model/stl' };
+  }),
   downloadBytes: (f: unknown) => download(f),
 }));
 
@@ -35,6 +37,20 @@ describe('TopBar', () => {
     await userEvent.click(screen.getByRole('button', { name: /STL/ }));
     await waitFor(() => expect(download).toHaveBeenCalledWith(expect.objectContaining({ name: 'leonardo-1-solid.stl' })));
     await waitFor(async () => expect((await listHistory()).length).toBe(1));
+  });
+
+  it('ignores a second export click while one is running and shows it is busy', async () => {
+    exportMock.calls = 0;
+    exportMock.release = () => {};
+    render(<TopBar />);
+    const button = screen.getByRole('button', { name: /3MF/ });
+    await userEvent.click(button);
+    await userEvent.click(button);
+    expect(exportMock.calls).toBe(1);
+    expect(button).toHaveAttribute('aria-busy', 'true');
+    exportMock.release!();
+    await waitFor(() => expect(button).toHaveAttribute('aria-busy', 'false'));
+    exportMock.release = null;
   });
 
   it('switches modes', async () => {

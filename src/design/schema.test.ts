@@ -57,3 +57,37 @@ describe('normaliseDesign', () => {
     expect(normaliseDesign({ seed: -1 })!.seed).toBe(4294967295);
   });
 });
+
+describe('form', () => {
+  it('defaults to a vase with a flat rim and no foot', () => {
+    expect(defaultDesign(1).form).toEqual({ archetype: 'vase', proportion: 0.25, rim: 'flat', foot: 0 });
+    expect(defaultDesign(1).v).toBe(2);
+  });
+
+  it('normalises unknown archetypes and rims and clamps numbers', () => {
+    const out = normaliseDesign({ seed: 1, form: { archetype: 'teapot', rim: 'wavy', proportion: 3, foot: -1 } })!;
+    expect(out.form).toEqual({ archetype: 'vase', proportion: 1, rim: 'flat', foot: 0 });
+  });
+
+  it('keeps a valid form', () => {
+    const form = { archetype: 'bowl', proportion: 0.8, rim: 'round', foot: 0.5 };
+    expect(normaliseDesign({ seed: 1, form })!.form).toEqual(form);
+  });
+});
+
+describe('look', () => {
+  it('defaults to white basic PLA', () => {
+    expect(defaultDesign(1).look).toEqual({ color: 'white', finish: 'basic' });
+  });
+
+  it('normalises unknown colours and finishes', () => {
+    expect(normaliseDesign({ seed: 1, look: { color: 'chartreuse', finish: 'velvet' } })!.look).toEqual({ color: 'white', finish: 'basic' });
+    expect(normaliseDesign({ seed: 1, look: { color: 'cyan', finish: 'silk' } })!.look).toEqual({ color: 'cyan', finish: 'silk' });
+  });
+});
+
+describe('3.0 designs from history', () => {
+  it('open as cylinders with the old proportions, like 3.0 links', () => {
+    expect(normaliseDesign({ v: 1, seed: 9 })!.form).toEqual({ archetype: 'cylinder', proportion: 0.56, rim: 'flat', foot: 0 });
+  });
+});

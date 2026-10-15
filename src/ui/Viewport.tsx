@@ -4,24 +4,41 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { BufferAttribute, BufferGeometry, CanvasTexture, Color, Object3D } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { printerById } from '../engine/printers';
+import { filamentById, finishMaterial } from '../engine/materials';
+import { editedCoefficients, idx } from '../engine/spectrum';
 import { faceOverhang } from '../engine/stats';
 import { useT } from '../i18n/useT';
 import { useStore } from '../state/store';
 import { Icon } from './icons';
 import { getPreview } from './preview';
-import { meshToGeometry, SURFACE } from './three/geometry';
+import { basisTint } from './three/basis';
+import { meshToGeometry } from './three/geometry';
 
 // Printers think in z-up; so does every mesh we build.
 Object3D.DEFAULT_UP.set(0, 0, 1);
 
-const BASE = new Color(SURFACE.color);
-const HOT = new Color('#ff5b4d');
+const HOT = new Color('#ff3b2f');
+const PLUS = new Color('#f0a63a');
+const MINUS = new Color('#4fb3a5');
 
-function overhangColors(marks: Float32Array): Float32Array {
+function basisColors(weights: Float32Array, base: Color): Float32Array {
+  const out = new Float32Array(weights.length * 3);
+  const c = new Color();
+  for (let i = 0; i < weights.length; i++) {
+    const w = weights[i];
+    c.copy(base).lerp(w >= 0 ? PLUS : MINUS, Math.abs(w) * 0.85);
+    out[3 * i] = c.r;
+    out[3 * i + 1] = c.g;
+    out[3 * i + 2] = c.b;
+  }
+  return out;
+}
+
+function overhangColors(marks: Float32Array, base: Color): Float32Array {
   const out = new Float32Array(marks.length * 3);
   const c = new Color();
   for (let i = 0; i < marks.length; i++) {
-    c.copy(BASE).lerp(HOT, marks[i]);
+    c.copy(base).lerp(HOT, marks[i]);
     out[3 * i] = c.r;
     out[3 * i + 1] = c.g;
     out[3 * i + 2] = c.b;
@@ -30,7 +47,7 @@ function overhangColors(marks: Float32Array): Float32Array {
 }
 
 /** Bed outline with a 10 mm grid and 50 mm major lines, centred on the origin. */
-function BedPlate({ printerId, strong }: { printerId: string; strong: boolean }) {
+function BedPlate({ printerId, strong, seeThrough }: { printerId: string; strong: boolean; seeThrough: boolean }) {
   const [bx, by] = printerById(printerId).bed;
   const { minor, major, outline } = useMemo(() => {
     const lines = (step: number, skip?: number) => {
@@ -57,7 +74,7 @@ function BedPlate({ printerId, strong }: { printerId: string; strong: boolean })
     <group position={[0, 0, -0.05]}>
       <mesh position={[0, 0, -0.1]}>
         <planeGeometry args={[bx, by]} />
-        <meshStandardMaterial color="#161a21" roughness={0.9} transparent opacity={strong ? 0.9 : 0.5} />
+        <meshStandardMaterial color="#161a21" roughness={0.9} transparent opacity={seeThrough ? 0.12 : strong ? 0.9 : 0.5} depthWrite={!seeThrough} />
       </mesh>
       <lineSegments geometry={minor}>
         <lineBasicMaterial color="#2a313c" transparent opacity={strong ? 0.9 : 0.45} />
@@ -100,21 +117,23 @@ function ShadowDisc({ size }: { size: number }) {
   );
 }
 
-/** Places the camera to frame the object; re-runs when `fitKey` changes. */
-function CameraRig({ width, height, fitKey }: { width: number; height: number; fitKey: number }) {
+/** Places the camera to frame the object; re-runs when `fitKey` or the view changes. */
+function CameraRig({ width, height, fitKey, below }: { width: number; height: number; fitKey: number; below: boolean }) {
   const { camera, controls, invalidate } = useThree();
   useEffect(() => {
     const r = Math.hypot(width / 2, height / 2);
     const fov = 'fov' in camera ? (camera.fov as number) : 30;
     const dist = (r / Math.sin((fov * Math.PI) / 360)) * 1.45;
-    camera.position.set(dist * 0.32, -dist * 0.9, height / 2 + dist * 0.3);
+    const targetZ = below ? height * 0.3 : height / 2;
+    if (below) camera.position.set(dist * 0.3, -dist * 0.6, targetZ - dist * 0.72);
+    else camera.position.set(dist * 0.32, -dist * 0.9, height / 2 + dist * 0.3);
     const c = controls as unknown as OrbitControlsImpl | null;
-    c?.target.set(0, 0, height / 2);
+    c?.target.set(0, 0, targetZ);
     c?.update();
-    camera.lookAt(0, 0, height / 2);
+    camera.lookAt(0, 0, targetZ);
     invalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fitKey, controls]);
+  }, [fitKey, controls, below]);
   return null;
 }
 
@@ -123,14 +142,31 @@ export function Viewport() {
   const live = useStore((s) => s.design);
   const mode = useStore((s) => s.mode);
   const showOverhang = useStore((s) => s.showOverhang) && mode === 'print';
+  const hoverCell = useStore((s) => (mode === 'refine' ? s.hoverCell : null));
   const design = useDeferredValue(live);
   const preview = getPreview(design);
   const [fitKey, setFitKey] = useState(0);
+  const [turntable, setTurntable] = useState(false);
+  const filament = filamentById(design.look.color);
+  const finish = finishMaterial(design.look.finish);
+  const baseColor = useMemo(() => new Color(filament.hex), [filament.hex]);
+  const [below, setBelow] = useState(false);
+  useEffect(() => {
+    if (mode !== 'print') setBelow(false);
+  }, [mode]);
 
-  const geometry = useMemo(
-    () => meshToGeometry(preview.mesh, showOverhang ? overhangColors(faceOverhang(preview.mesh)) : undefined),
-    [preview, showOverhang],
-  );
+  const tint = useMemo(() => {
+    if (hoverCell && (hoverCell.k || hoverCell.m)) {
+      const c = editedCoefficients(design.seed, design.spectrum);
+      const i = idx(hoverCell.k, hoverCell.m);
+      const cell = { ...hoverCell, phase: Math.atan2(c.S[i], c.C[i]) };
+      const opts = { heightMm: preview.scale.heightMm, offset: preview.scale.offset, twist: design.modifiers.twist };
+      return basisColors(basisTint(preview.mesh, cell, opts), baseColor);
+    }
+    if (showOverhang) return overhangColors(faceOverhang(preview.mesh), baseColor);
+    return undefined;
+  }, [preview, showOverhang, hoverCell, design, baseColor]);
+  const geometry = useMemo(() => meshToGeometry(preview.mesh, tint), [preview, tint]);
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   const [w, , h] = preview.stats.size;
@@ -142,7 +178,7 @@ export function Viewport() {
       <div className="viewport-canvas" role="img" aria-label={t('viewport.label')}>
         <Canvas
           dpr={[1, 2]}
-          frameloop="demand"
+          frameloop={turntable ? 'always' : 'demand'}
           camera={{ fov: 30, near: 1, far: 8000, position: [0, -500, 200] }}
           gl={{ antialias: true, alpha: true }}
         >
@@ -155,12 +191,18 @@ export function Viewport() {
             <Lightformer form="ring" intensity={1.6} position={[7, 3, 5]} scale={3} color="#ffd9a0" />
           </Environment>
           <mesh geometry={geometry}>
-            <meshPhysicalMaterial {...SURFACE} color={showOverhang ? '#ffffff' : SURFACE.color} vertexColors={showOverhang} />
+            <meshPhysicalMaterial
+              key={tint ? 'tinted' : 'plain'}
+              {...finish}
+              sheenColor={filament.hex}
+              color={tint ? '#ffffff' : filament.hex}
+              vertexColors={!!tint}
+            />
           </mesh>
-          <BedPlate printerId={design.print.printer} strong={mode === 'print'} />
-          <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />
-          <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} />
-          <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} />
+          <BedPlate printerId={design.print.printer} strong={mode === 'print'} seeThrough={below} />
+          {!below && <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />}
+          <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} autoRotate={turntable} autoRotateSpeed={1.6} />
+          <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} below={below} />
         </Canvas>
       </div>
 
@@ -171,6 +213,32 @@ export function Viewport() {
         <button className="icon-btn" onClick={() => setFitKey((k) => k + 1)} aria-label={t('viewport.reset')} title={t('viewport.reset')}>
           <Icon name="focus" />
         </button>
+        <button
+          className={turntable ? 'icon-btn on' : 'icon-btn'}
+          onClick={() => setTurntable(!turntable)}
+          aria-pressed={turntable}
+          aria-label={t('viewport.turntable')}
+          title={t('viewport.turntable')}
+        >
+          <Icon name="rotate" />
+        </button>
+        {mode === 'print' && preview.stats.overhangAreaMm2 > 0 && (
+          <>
+            <span className="dims overhang-chip">
+              <span className="dot" aria-hidden="true" />
+              {t('viewport.overhang', { area: (preview.stats.overhangAreaMm2 / 100).toFixed(1) })}
+            </span>
+            <button
+              className="btn small hud-btn"
+              onClick={() => {
+                if (!below) useStore.getState().setShowOverhang(true);
+                setBelow(!below);
+              }}
+            >
+              {below ? t('viewport.above') : t('viewport.below')}
+            </button>
+          </>
+        )}
       </div>
       {!preview.check.ok && (
         <p className="viewport-error" role="alert">

@@ -1,16 +1,7 @@
-import { defaultDesign, type Design } from '../design/schema';
+import { defaultDesign } from '../design/schema';
 import { buildMesh } from './mesh';
 import { checkMesh } from './validate';
-
-export function cylinderDesign(patch: Partial<Design['body']> = {}): Design {
-  const d = defaultDesign(3);
-  return {
-    ...d,
-    spectrum: { ...d.spectrum, K: 1, M: 1 },
-    body: { ...d.body, ...patch },
-    print: { printer: 'x1c', heightMm: 100 },
-  };
-}
+import { cylinderDesign } from './testing';
 
 function bounds(p: Float32Array) {
   const lo = [Infinity, Infinity, Infinity];
@@ -93,5 +84,33 @@ describe('planter body', () => {
   it('shrinks a hole that would cut the wall', () => {
     const built = buildMesh(cylinderDesign({ kind: 'planter', holeMm: 40 }), 'preview');
     expect(checkMesh(built.mesh).ok).toBe(true);
+  });
+});
+
+describe('round rim on vessels', () => {
+  const flat = (kind: 'hollow' | 'planter') => cylinderDesign({ kind, wallMm: 2, floorMm: 2, holeMm: 8 });
+  const round = (kind: 'hollow' | 'planter') => {
+    const d = flat(kind);
+    return { ...d, form: { ...d.form, rim: 'round' as const } };
+  };
+
+  it.each(['hollow', 'planter'] as const)('%s with a half-round lip is closed', (kind) => {
+    expect(checkMesh(buildMesh(round(kind), 'preview').mesh).ok).toBe(true);
+  });
+
+  it('adds about a half-torus of material and keeps the total height', () => {
+    const a = checkMesh(buildMesh(flat('hollow'), 'preview').mesh).volume;
+    const built = buildMesh(round('hollow'), 'preview');
+    const b = checkMesh(built.mesh).volume;
+    // The lip moves the walls down by 1 mm (flat ring loses 1 mm of wall) and adds a
+    // half torus of radius 1 mm around a 39 mm centre circle.
+    const n = built.field.nphi;
+    const wallBand = (polygonArea(n, 40) - polygonArea(n, 38)) * 1;
+    // 8-segment half circle of radius 1 swept around the 39 mm centre polygon (Pappus).
+    const halfDisc = 0.5 * 8 * Math.sin(Math.PI / 8);
+    const halfTorus = halfDisc * n * 2 * 39 * Math.sin(Math.PI / n);
+    expect((b - a) / (halfTorus - wallBand)).toBeCloseTo(1, 1);
+    const { hi } = bounds(built.mesh.positions);
+    expect(hi[2]).toBeCloseTo(100, 3);
   });
 });

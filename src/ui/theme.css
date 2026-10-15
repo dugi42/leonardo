@@ -221,6 +221,26 @@ select {
   gap: 6px;
 }
 
+.btn[aria-disabled='true']:not([aria-busy='true']) {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .icon-btn.starred {
   color: var(--kiln);
 }
@@ -475,12 +495,89 @@ select {
   height: 16px;
 }
 
+/* ---------- form ---------- */
+
+.archetypes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.archetype {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 8px 2px 6px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-s);
+  color: var(--muted);
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: border-color 120ms, color 120ms, background 120ms;
+}
+
+.archetype input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.archetype svg {
+  width: 34px;
+  height: 34px;
+}
+
+.archetype path {
+  fill: #2a313c;
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-linejoin: round;
+}
+
+.archetype:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+}
+
+.archetype.on {
+  color: var(--text);
+  border-color: var(--kiln);
+  background: rgba(240, 166, 58, 0.08);
+}
+
+.archetype.on path {
+  fill: rgba(240, 166, 58, 0.35);
+  stroke: var(--kiln);
+}
+
+.archetype:has(input:focus-visible) {
+  outline: 2px solid var(--glaze);
+  outline-offset: 2px;
+}
+
+.field-row {
+  display: grid;
+  gap: 6px;
+  margin: 6px 0 4px;
+}
+
+.field-label {
+  font-size: 13px;
+}
+
+.segmented.three {
+  grid-template-columns: repeat(3, 1fr);
+  margin-bottom: 0;
+}
+
 /* ---------- spectrum ---------- */
 
 .heatmap-frame {
   position: relative;
-  padding: 0 0 14px 14px;
-  margin-bottom: 12px;
+  padding: 0 0 16px 18px;
+  margin-bottom: 4px;
 }
 
 .heatmap {
@@ -498,9 +595,30 @@ select {
   cursor: nwse-resize;
 }
 
+.heatmap .cell-empty {
+  fill: none;
+  stroke: #1c222b;
+  stroke-width: 0.6;
+}
+
+.heatmap .cell-form {
+  fill: none;
+  stroke: var(--kiln);
+  stroke-width: 1;
+  stroke-dasharray: 2 1.5;
+}
+
 .heatmap .kept {
   fill: none;
   stroke: var(--glaze);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.heatmap .hover {
+  fill: none;
+  stroke: #fff;
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
@@ -522,25 +640,57 @@ select {
 .heatmap .edit-damp {
   fill: var(--void);
   stroke: #fff;
-  stroke-width: 0.6;
+  stroke-width: 0.7;
   pointer-events: none;
 }
 
-.axis {
+.ticks-k,
+.ticks-m {
   position: absolute;
   color: var(--faint);
-  font-size: 11px;
-  font-style: italic;
+  font-size: 10.5px;
+  pointer-events: none;
 }
 
-.axis-k {
+.ticks-k {
   left: 0;
   top: 0;
+  bottom: 16px;
+  width: 16px;
 }
 
-.axis-m {
+.ticks-k span {
+  position: absolute;
+  right: 4px;
+  transform: translateY(50%);
+}
+
+.ticks-m {
+  left: 18px;
   right: 0;
-  bottom: -2px;
+  bottom: 0;
+  height: 14px;
+}
+
+.ticks-m span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.ticks-k .axis-name,
+.ticks-m .axis-name {
+  font-style: italic;
+  transform: none;
+}
+
+.spectrum-status {
+  height: 20px;
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .brushes {
@@ -550,6 +700,52 @@ select {
 .brushes .seg {
   height: 28px;
   font-size: 12.5px;
+}
+
+/* ---------- filament ---------- */
+
+.swatches {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.swatch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.swatch .chip {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), inset 0 -6px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 120ms;
+}
+
+.swatch:hover .chip {
+  transform: scale(1.08);
+}
+
+.swatch.on {
+  outline: 2px solid var(--kiln);
+  outline-offset: 2px;
+}
+
+.swatch:has(input:focus-visible) {
+  outline: 2px solid var(--glaze);
+  outline-offset: 2px;
 }
 
 /* ---------- stats ---------- */
@@ -620,6 +816,30 @@ select {
   font-size: 12.5px;
 }
 
+.overhang-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffc3bc;
+}
+
+.overhang-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.hud-btn {
+  background: rgba(13, 16, 20, 0.7);
+  border-radius: 999px;
+}
+
+.viewport-hud .icon-btn.on {
+  color: var(--kiln);
+  border-color: var(--kiln);
+}
+
 .viewport-hud .icon-btn {
   background: rgba(13, 16, 20, 0.7);
   border: 1px solid var(--line);
@@ -641,6 +861,11 @@ select {
 .viewport-loading {
   position: absolute;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
   background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%) 0 0 / 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
@@ -697,6 +922,12 @@ select {
   height: 100%;
   background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.04) 50%, transparent 60%) 0 0 / 200% 100%;
   animation: shimmer 1.4s linear infinite;
+}
+
+.tile-seed.parent {
+  color: var(--kiln-ink);
+  background: var(--kiln);
+  font-weight: 600;
 }
 
 .tile-seed {

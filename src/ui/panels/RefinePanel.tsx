@@ -5,6 +5,7 @@ import { useStore } from '../../state/store';
 import { updateModifiers, updateRecipe } from '../../state/updates';
 import { Slider } from '../controls/Slider';
 import { Icon } from '../icons';
+import { FormSection } from './FormSection';
 import { SpectrumEditor } from './SpectrumEditor';
 
 const DEFAULTS = defaultDesign(0);
@@ -18,6 +19,7 @@ export function RefinePanel() {
 
   return (
     <div className="panel-body">
+      <FormSection />
       <SpectrumEditor />
 
       <section className="panel-section">

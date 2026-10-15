@@ -4,7 +4,7 @@ import { buildMesh } from '../mesh';
 import { fileName, toStl } from './stl';
 import { to3mf } from './threemf';
 
-const { mesh } = buildMesh({ ...defaultDesign(4), spectrum: { ...defaultDesign(4).spectrum, K: 1, M: 1 } }, 'preview');
+const { mesh } = buildMesh({ ...defaultDesign(4), form: { archetype: 'cylinder', proportion: 0.5, rim: 'flat', foot: 0 }, spectrum: { ...defaultDesign(4).spectrum, K: 1, M: 1 } }, 'preview');
 const nFaces = mesh.indices.length / 3;
 const nVerts = mesh.positions.length / 3;
 
@@ -38,6 +38,12 @@ describe('to3mf', () => {
     expect(xml.match(/<vertex /g)!.length).toBe(nVerts);
     expect(xml.match(/<triangle /g)!.length).toBe(nFaces);
     expect(xml).toContain('<metadata name="Title">Leonardo 4</metadata>');
+  });
+
+  it('carries the filament colour as a base material', () => {
+    const xml = strFromU8(unzipSync(to3mf(mesh, { title: 't', description: '', color: { name: 'Cyan', hex: '#0086d6' } }))['3D/3dmodel.model']);
+    expect(xml).toContain('<base name="Cyan" displaycolor="#0086D6FF"/>');
+    expect(xml).toMatch(/<object id="1" type="model" pid="2" pindex="0">/);
   });
 
   it('escapes metadata', () => {

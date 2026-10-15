@@ -13,7 +13,7 @@ const CENTRE = 4;
 
 export function shuffleTiles() {
   const { design, setExplore } = useStore.getState();
-  setExplore({ tiles: Array.from({ length: 9 }, () => randomDesign(randomSeed(), design)), selected: 0 });
+  setExplore({ tiles: Array.from({ length: 9 }, () => randomDesign(randomSeed(), design)), selected: 0, kind: 'shuffle' });
 }
 
 export function variationTiles() {
@@ -30,17 +30,22 @@ export function variationTiles() {
     }
     return child;
   });
-  setExplore({ tiles, selected: CENTRE });
+  setExplore({ tiles, selected: CENTRE, kind: 'variations' });
+}
+
+/** Tiles carry shapes; filament, body and printer always come from the current design. */
+export function withSetup(tile: Design, current: Design): Design {
+  return { ...tile, body: current.body, print: current.print, look: current.look };
 }
 
 export function refineSelected() {
-  const { explore, setDesign, setMode } = useStore.getState();
+  const { explore, design, setDesign, setMode } = useStore.getState();
   const chosen = explore.tiles[explore.selected];
-  if (chosen) setDesign(chosen);
+  if (chosen) setDesign(withSetup(chosen, design));
   setMode('refine');
 }
 
-function Tile({ design, index, selected }: { design: Design; index: number; selected: boolean }) {
+function Tile({ design, index, selected, label }: { design: Design; index: number; selected: boolean; label: string }) {
   const t = useT();
   const [src, setSrc] = useState<string>();
   useEffect(() => {
@@ -60,13 +65,20 @@ function Tile({ design, index, selected }: { design: Design; index: number; sele
       onDoubleClick={refineSelected}
     >
       {src ? <img src={src} alt="" draggable={false} /> : <span className="tile-wait" aria-hidden="true" />}
-      <span className="tile-seed">#{design.seed}</span>
+      <span className={index === CENTRE && label !== `#${design.seed}` ? 'tile-seed parent' : 'tile-seed'}>{label}</span>
     </button>
   );
 }
 
 export function ExploreGrid() {
+  const t = useT();
   const explore = useStore((s) => s.explore);
+  const current = useStore((s) => s.design);
+  const label = (d: Design, i: number) => {
+    if (explore.kind !== 'variations') return `#${d.seed}`;
+    if (i === CENTRE) return t('explore.parent');
+    return t('explore.variation', { n: i < CENTRE ? i + 1 : i });
+  };
 
   useEffect(() => {
     if (useStore.getState().explore.tiles.length === 0) shuffleTiles();
@@ -75,9 +87,10 @@ export function ExploreGrid() {
   return (
     <div className="explore">
       <div className="explore-grid">
-        {explore.tiles.map((d, i) => (
-          <Tile key={`${i}-${encodeDesign(d)}`} design={d} index={i} selected={i === explore.selected} />
-        ))}
+        {explore.tiles.map((tile, i) => {
+          const d = withSetup(tile, current);
+          return <Tile key={`${i}-${encodeDesign(d)}`} design={d} index={i} selected={i === explore.selected} label={label(d, i)} />;
+        })}
       </div>
     </div>
   );

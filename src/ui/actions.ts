@@ -23,7 +23,9 @@ export async function keepInHistory(): Promise<boolean> {
 }
 
 export async function exportCurrent(format: Format) {
-  const { design, notify } = useStore.getState();
+  const { design, notify, exporting } = useStore.getState();
+  if (exporting) return;
+  useStore.setState({ exporting: format });
   const label = format.toUpperCase();
   notify(tr('action.exporting', { format: label }));
   try {
@@ -33,6 +35,8 @@ export async function exportCurrent(format: Format) {
     await keepInHistory();
   } catch (err) {
     notify(tr('error.mesh', { reason: err instanceof Error ? err.message : String(err) }), 'error');
+  } finally {
+    useStore.setState({ exporting: null });
   }
 }
 

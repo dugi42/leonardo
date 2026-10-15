@@ -16,6 +16,11 @@ describe('randomDesign', () => {
     }
   });
 
+  it('keeps the look of a base design', () => {
+    const base = { ...defaultDesign(1), look: { color: 'pink' as const, finish: 'silk' as const } };
+    expect(randomDesign(5, base).look).toEqual(base.look);
+  });
+
   it('keeps body and print settings of a base design', () => {
     const base = { ...defaultDesign(1), body: { kind: 'hollow' as const, wallMm: 3, floorMm: 2, holeMm: 8 } };
     expect(randomDesign(5, base).body).toEqual(base.body);
@@ -61,5 +66,20 @@ describe('variation', () => {
     const v = variation(parent, 1, sfc32(5));
     expect(v.body).toEqual(parent.body);
     expect(v.print).toEqual(parent.print);
+  });
+});
+
+describe('random forms', () => {
+  it('draws different archetypes and proportions near their defaults', () => {
+    const forms = Array.from({ length: 60 }, (_, s) => randomDesign(s).form);
+    expect(new Set(forms.map((f) => f.archetype)).size).toBeGreaterThan(4);
+    expect(new Set(forms.map((f) => f.rim)).size).toBe(3);
+    expect(forms.some((f) => f.foot > 0)).toBe(true);
+  });
+
+  it('variations keep the archetype', () => {
+    const parent = randomDesign(5);
+    const rng = sfc32(9);
+    for (let i = 0; i < 20; i++) expect(variation(parent, 1, rng).form.archetype).toBe(parent.form.archetype);
   });
 });

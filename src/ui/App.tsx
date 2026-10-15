@@ -29,7 +29,14 @@ export function App() {
         <div className="stage">{mode === 'explore' ? (
             <ExploreGrid />
           ) : (
-            <Suspense fallback={<div className="viewport-loading" aria-hidden="true" />}>
+            <Suspense
+              fallback={
+                <div className="viewport-loading" role="status">
+                  <span className="spinner" aria-hidden="true" />
+                  {t('viewport.loading')}
+                </div>
+              }
+            >
               <Viewport />
             </Suspense>
           )}</div>

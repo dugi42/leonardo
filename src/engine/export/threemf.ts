@@ -20,6 +20,8 @@ const fmt = (x: number) => String(Math.round(x * 1e4) / 1e4);
 export interface ThreeMfMeta {
   title: string;
   description: string;
+  /** Filament colour, written as a base material most slicers show on import. */
+  color?: { name: string; hex: string };
 }
 
 /** Minimal 3MF core package (one object, millimetres) that Bambu Studio and others import. */
@@ -32,8 +34,15 @@ export function to3mf(mesh: Mesh, meta: ThreeMfMeta): Uint8Array {
     `<metadata name="Title">${escape(meta.title)}</metadata>`,
     `<metadata name="Description">${escape(meta.description)}</metadata>`,
     '<metadata name="Application">Leonardo</metadata>',
-    '<resources><object id="1" type="model"><mesh><vertices>',
+    '<resources>',
   ];
+  if (meta.color) {
+    const rgba = `${meta.color.hex.toUpperCase()}FF`;
+    parts.push(`<basematerials id="2"><base name="${escape(meta.color.name)}" displaycolor="${rgba}"/></basematerials>`);
+    parts.push('<object id="1" type="model" pid="2" pindex="0"><mesh><vertices>');
+  } else {
+    parts.push('<object id="1" type="model"><mesh><vertices>');
+  }
   for (let i = 0; i < p.length; i += 3) {
     parts.push(`<vertex x="${fmt(p[i])}" y="${fmt(p[i + 1])}" z="${fmt(p[i + 2])}"/>`);
   }

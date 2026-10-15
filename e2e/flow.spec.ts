@@ -22,6 +22,12 @@ test('explore, refine, print and download watertight files', async ({ page }) =>
   await page.getByRole('button', { name: 'Refine this design' }).click();
 
   await expect(page.getByRole('img', { name: 'Spectrum' })).toBeVisible();
+  await page.locator('.archetype', { hasText: 'Bottle' }).click();
+  await page.locator('.seg', { hasText: 'Round' }).click();
+  const heatmap = page.getByRole('img', { name: 'Spectrum' });
+  const box = (await heatmap.boundingBox())!;
+  await page.mouse.move(box.x + box.width * 0.2, box.y + box.height * 0.9);
+  await expect(page.getByTestId('spectrum-status')).toHaveText(/^k \d+ · m \d+/);
   const bulge = page.getByLabel('Bulge');
   await bulge.focus();
   await page.keyboard.press('ArrowRight');
@@ -30,12 +36,14 @@ test('explore, refine, print and download watertight files', async ({ page }) =>
   await page.getByRole('tab', { name: 'Print' }).click();
   await page.getByText('Hollow', { exact: true }).click();
   await expect(page.getByLabel('Wall')).toBeVisible();
+  await page.getByRole('radio', { name: 'Cyan' }).check({ force: true });
 
   const [threeMf] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: /3MF/ }).click()]);
   expect(threeMf.suggestedFilename()).toMatch(/^leonardo-\d+-hollow\.3mf$/);
   const files = unzipSync(await bytes(threeMf));
   const model = strFromU8(files['3D/3dmodel.model']);
   expect(model).toContain('unit="millimeter"');
+  expect(model).toContain('displaycolor="#0086D6FF"');
   expect(model.match(/<triangle /g)!.length).toBeGreaterThan(100_000);
 
   const [stl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'STL', exact: true }).click()]);

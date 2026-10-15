@@ -22,15 +22,16 @@ export function magnitude(c: Coefficients, k: number, m: number): number {
  */
 function weight(q: number, k: number, m: number): number {
   if (m === 0) return k === 0 ? 0 : k ** -q;
-  return (m === 1 ? 0.3 : 1) * (1 + k) ** -q * m ** (-q / 3);
+  return (m === 1 ? 0.15 : 1) * (1 + k) ** -q * m ** (-q / 3);
 }
 
 /** RMS envelope of the profile (m = 0) and angular (m > 0) blocks at full slider value. */
-const PROFILE_RMS = 0.7;
+const PROFILE_RMS = 0.3;
 const ANGULAR_RMS = 0.5;
 
 /**
- * The untruncated, unedited spectrum of a seed. Random unit values are always drawn for
+ * The untruncated, unedited spectrum of a seed: the Fourier transform of the log radius
+ * on top of the form, so C_00 is always 0. Random unit values are always drawn for
  * the whole grid in row-major order, so recipe sliders rescale a design instead of
  * reshuffling it. Each block's envelope is normalised to a fixed energy, so symmetry
  * and roughness change the character of a shape, not its overall strength.
@@ -66,20 +67,33 @@ export function fullCoefficients(seed: number, recipe: Recipe): Coefficients {
       S[idx(k, m)] = m === 0 ? 0 : a * w;
     }
   }
-  C[idx(0, 0)] = 1;
   C[idx(0, recipe.ribFrequency)] += 0.12 * recipe.ribs;
+  return { C, S };
+}
+
+/** Below this magnitude a cell counts as empty; boosting it injects energy instead. */
+const EMPTY = 0.01;
+const INJECT = 0.05;
+
+/** Edits applied, not truncated: what the spectrum editor shows. */
+export function editedCoefficients(seed: number, spectrum: Spectrum): Coefficients {
+  const { C, S } = fullCoefficients(seed, spectrum.recipe);
+  for (const [key, gain] of Object.entries(spectrum.edits)) {
+    const [k, m] = key.split(',').map(Number);
+    if (k === 0 && m === 0) continue;
+    const i = idx(k, m);
+    if (Math.hypot(C[i], S[i]) < EMPTY) C[i] += INJECT * Math.max(0, gain - 1);
+    else {
+      C[i] *= gain;
+      S[i] *= gain;
+    }
+  }
   return { C, S };
 }
 
 /** The spectrum actually used for the shape: edits applied, truncated to K x M. */
 export function coefficients(seed: number, spectrum: Spectrum): Coefficients {
-  const { C, S } = fullCoefficients(seed, spectrum.recipe);
-  for (const [key, gain] of Object.entries(spectrum.edits)) {
-    const [k, m] = key.split(',').map(Number);
-    if (k === 0 && m === 0) continue;
-    C[idx(k, m)] *= gain;
-    S[idx(k, m)] *= gain;
-  }
+  const { C, S } = editedCoefficients(seed, spectrum);
   for (let k = 0; k < KMAX; k++) {
     for (let m = 0; m < MMAX; m++) {
       if (k < spectrum.K && m < spectrum.M) continue;

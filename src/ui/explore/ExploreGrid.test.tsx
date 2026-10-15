@@ -8,7 +8,7 @@ vi.mock('../thumbnail', () => ({ renderThumbnail: vi.fn(async () => undefined) }
 
 beforeEach(() => {
   resetStore(defaultDesign(1));
-  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35 } });
+  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35, kind: 'shuffle' } });
 });
 
 const tiles = () => screen.getAllByRole('button', { name: /^Design \d+/ });
@@ -40,6 +40,17 @@ describe('ExploreGrid', () => {
     expect(next.filter((d) => JSON.stringify(d) === JSON.stringify(parent))).toHaveLength(1);
   });
 
+  it('labels the parent and its variations', () => {
+    render(<><ExploreGrid /><ExplorePanel /></>);
+    fireEvent.click(tiles()[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Variations' }));
+    expect(screen.getByText('Parent')).toBeInTheDocument();
+    expect(screen.getByText('Variation 1')).toBeInTheDocument();
+    expect(screen.getByText('Variation 8')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Shuffle' }));
+    expect(screen.queryByText('Parent')).toBeNull();
+  });
+
   it('opens the selected design in Refine', () => {
     render(<><ExploreGrid /><ExplorePanel /></>);
     fireEvent.click(tiles()[5]);
@@ -47,5 +58,21 @@ describe('ExploreGrid', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Refine this design' }));
     expect(useStore.getState().design).toEqual(chosen);
     expect(useStore.getState().mode).toBe('refine');
+  });
+
+  it('keeps the current filament, body and printer when a tile is opened', () => {
+    render(<><ExploreGrid /><ExplorePanel /></>);
+    useStore.getState().setDesign((d) => ({
+      ...d,
+      look: { color: 'black', finish: 'matte' },
+      body: { ...d.body, kind: 'planter' },
+      print: { printer: 'a1mini', heightMm: 90 },
+    }));
+    fireEvent.click(tiles()[2]);
+    fireEvent.click(screen.getByRole('button', { name: 'Refine this design' }));
+    const d = useStore.getState().design;
+    expect(d.look).toEqual({ color: 'black', finish: 'matte' });
+    expect(d.body.kind).toBe('planter');
+    expect(d.print).toEqual({ printer: 'a1mini', heightMm: 90 });
   });
 });
