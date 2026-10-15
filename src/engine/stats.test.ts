@@ -2,6 +2,7 @@ import { defaultDesign, type Body } from '../design/schema';
 import { buildBody } from './body';
 import type { PrintScale } from './fit';
 import { buildMesh } from './mesh';
+import { CYLINDER_25 } from './testing';
 import { faceOverhang, meshStats, PLA_DENSITY } from './stats';
 import type { Field } from './surface';
 
@@ -12,13 +13,13 @@ function coneField(r0: number, r1: number, nh = 20, nphi = 64): Field {
   const phi = Float64Array.from({ length: nphi }, (_, j) => (2 * Math.PI * j) / nphi);
   const r = new Float64Array(nh * nphi);
   for (let i = 0; i < nh; i++) r.fill(r0 + (r1 - r0) * h[i], i * nphi, (i + 1) * nphi);
-  return { nh, nphi, h, phi, r };
+  return { nh, nphi, h, phi, r, height: 2.5 };
 }
 const scale: PrintScale = { sigma: 10, heightMm: 25, capped: false, offset: [0, 0] };
 
 describe('meshStats', () => {
   const d = defaultDesign(3);
-  const cyl = { ...d, spectrum: { ...d.spectrum, K: 1, M: 1 }, print: { printer: 'x1c' as const, heightMm: 100 } };
+  const cyl = { ...d, form: CYLINDER_25, spectrum: { ...d.spectrum, K: 1, M: 1 }, print: { printer: 'x1c' as const, heightMm: 100 } };
 
   it('measures size and volume of the cylinder', () => {
     const s = meshStats(buildMesh(cyl, 'preview').mesh, 'solid');

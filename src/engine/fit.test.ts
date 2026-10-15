@@ -4,7 +4,7 @@ import type { Field } from './surface';
 
 function cylinder(radius: number, nphi = 64): Field {
   const phi = Float64Array.from({ length: nphi }, (_, j) => (2 * Math.PI * j) / nphi);
-  return { nh: 2, nphi, h: Float64Array.from([0, 1]), phi, r: new Float64Array(2 * nphi).fill(radius) };
+  return { nh: 2, nphi, h: Float64Array.from([0, 1]), phi, r: new Float64Array(2 * nphi).fill(radius), height: 2.5 };
 }
 
 describe('printers', () => {

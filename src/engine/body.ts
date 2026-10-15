@@ -1,5 +1,4 @@
 import type { Body } from '../design/schema';
-import { H0 } from './constants';
 import type { PrintScale } from './fit';
 import type { Mesh } from './mesh';
 import type { Field } from './surface';
@@ -80,7 +79,7 @@ class Builder {
 function outerRings(b: Builder, field: Field, scale: PrintScale): number[] {
   const rings: number[] = [];
   for (let i = 0; i < field.nh; i++) {
-    const z = field.h[i] * H0 * scale.sigma;
+    const z = field.h[i] * field.height * scale.sigma;
     rings.push(b.ring(z, (j) => field.r[i * field.nphi + j] * scale.sigma));
   }
   for (let i = 0; i + 1 < rings.length; i++) b.outer(rings[i], rings[i + 1]);

@@ -4,7 +4,7 @@ import { buildMesh } from '../mesh';
 import { fileName, toStl } from './stl';
 import { to3mf } from './threemf';
 
-const { mesh } = buildMesh({ ...defaultDesign(4), spectrum: { ...defaultDesign(4).spectrum, K: 1, M: 1 } }, 'preview');
+const { mesh } = buildMesh({ ...defaultDesign(4), form: { archetype: 'cylinder', proportion: 0.5, rim: 'flat', foot: 0 }, spectrum: { ...defaultDesign(4).spectrum, K: 1, M: 1 } }, 'preview');
 const nFaces = mesh.indices.length / 3;
 const nVerts = mesh.positions.length / 3;
 

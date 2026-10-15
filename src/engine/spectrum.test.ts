@@ -1,6 +1,6 @@
 import { defaultDesign, type Spectrum } from '../design/schema';
 import { KMAX, MMAX } from './constants';
-import { coefficients, fullCoefficients, idx, magnitude } from './spectrum';
+import { coefficients, editedCoefficients, fullCoefficients, idx, magnitude } from './spectrum';
 
 const spec = (patch: Partial<Spectrum> = {}): Spectrum => ({ ...defaultDesign(1).spectrum, ...patch });
 const recipe = (patch: Partial<Spectrum['recipe']>) => ({ ...defaultDesign(1).spectrum.recipe, ...patch });
@@ -15,9 +15,9 @@ describe('fullCoefficients', () => {
     expect(a.C).not.toEqual(c.C);
   });
 
-  it('has unit mean term and no sine at m = 0', () => {
+  it('has no mean term (the form sets the size) and no sine at m = 0', () => {
     const c = fullCoefficients(5, spec().recipe);
-    expect(c.C[idx(0, 0)]).toBe(1);
+    expect(c.C[idx(0, 0)]).toBe(0);
     for (let k = 0; k < KMAX; k++) expect(c.S[idx(k, 0)]).toBe(0);
   });
 
@@ -25,7 +25,7 @@ describe('fullCoefficients', () => {
     const c = fullCoefficients(5, recipe({ bulge: 0, flutes: 0, ribs: 0 }));
     let nonzero = 0;
     for (let i = 0; i < KMAX * MMAX; i++) if (c.C[i] !== 0 || c.S[i] !== 0) nonzero++;
-    expect(nonzero).toBe(1);
+    expect(nonzero).toBe(0);
   });
 
   it('keeps only multiples of the symmetry order', () => {
@@ -68,6 +68,18 @@ describe('coefficients', () => {
 
   it('never edits the mean term', () => {
     const edited = coefficients(5, spec({ edits: { '0,0': 3 } }));
-    expect(edited.C[idx(0, 0)]).toBe(1);
+    expect(edited.C[idx(0, 0)]).toBe(0);
+  });
+
+  it('injects energy when boosting an empty cell', () => {
+    const sym = spec({ K: KMAX, M: MMAX, recipe: recipe({ symmetry: 4 }), edits: { '1,3': 2 } });
+    expect(magnitude(fullCoefficients(5, sym.recipe), 1, 3)).toBe(0);
+    expect(editedCoefficients(5, sym).C[idx(1, 3)]).toBeCloseTo(0.05, 12);
+    expect(coefficients(5, sym).C[idx(1, 3)]).toBeCloseTo(0.05, 12);
+  });
+
+  it('damping an empty cell keeps it empty', () => {
+    const sym = spec({ K: KMAX, M: MMAX, recipe: recipe({ symmetry: 4 }), edits: { '1,3': 0.5 } });
+    expect(magnitude(coefficients(5, sym), 1, 3)).toBe(0);
   });
 });

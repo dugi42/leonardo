@@ -1,16 +1,7 @@
-import { defaultDesign, type Design } from '../design/schema';
+import { defaultDesign } from '../design/schema';
 import { buildMesh } from './mesh';
 import { checkMesh } from './validate';
-
-export function cylinderDesign(patch: Partial<Design['body']> = {}): Design {
-  const d = defaultDesign(3);
-  return {
-    ...d,
-    spectrum: { ...d.spectrum, K: 1, M: 1 },
-    body: { ...d.body, ...patch },
-    print: { printer: 'x1c', heightMm: 100 },
-  };
-}
+import { cylinderDesign } from './testing';
 
 function bounds(p: Float32Array) {
   const lo = [Infinity, Infinity, Infinity];

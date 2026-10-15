@@ -1,8 +1,6 @@
 /** Coefficient grid size: k (height frequencies) x m (angular frequencies). */
 export const KMAX = 24;
 export const MMAX = 32;
-/** Raw height of the unit-radius design; h in [0, 1] maps to z in [0, H0]. */
-export const H0 = 2.5;
 /** Smallest relative radius; keeps every cross-section star-shaped and printable. */
 export const R_MIN = 0.15;
 /** Free space kept to each side of the bed, in millimetres. */
