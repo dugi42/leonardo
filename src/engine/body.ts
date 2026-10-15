@@ -95,12 +95,68 @@ function solid(field: Field, scale: PrintScale): Mesh {
   return b.mesh();
 }
 
+/** Outer radius (mm) at relative height h, linearly interpolated between field rings. */
+function outerRadiusAt(field: Field, scale: PrintScale, h: number): (j: number) => number {
+  const x = h * (field.nh - 1);
+  const i0 = Math.min(field.nh - 2, Math.floor(x));
+  const f = x - i0;
+  return (j) =>
+    ((1 - f) * field.r[i0 * field.nphi + j] + f * field.r[(i0 + 1) * field.nphi + j]) * scale.sigma;
+}
+
+/** Inner wall radius: wall thickness inside the outer radius, never thinner than 0.4 mm of shell. */
+const innerOf = (outerMm: number, wallMm: number) =>
+  Math.min(outerMm - 0.4, Math.max(0.5, outerMm - wallMm));
+
+/** Open-top vessel with real walls and floor; with holeMm > 0 the floor gets a drainage hole. */
+function vessel(field: Field, scale: PrintScale, body: Body, withHole: boolean): Mesh {
+  const b = new Builder(field, scale);
+  const outer = outerRings(b, field, scale);
+  const height = scale.heightMm;
+  const floorMm = Math.min(body.floorMm, height * 0.5);
+  const hFloor = floorMm / height;
+
+  // Inner rings: one exactly at the floor, then every field ring above it.
+  const heights = [hFloor, ...Array.from(field.h).filter((h) => h > hFloor + 1e-6)];
+  const inner = heights.map((h) => {
+    const outerAt = outerRadiusAt(field, scale, h);
+    return b.ring(h * height, (j) => innerOf(outerAt(j), body.wallMm));
+  });
+  for (let i = 0; i + 1 < inner.length; i++) b.inner(inner[i], inner[i + 1]);
+  b.annulusUp(inner[inner.length - 1], outer[outer.length - 1]);
+
+  let holeR = withHole ? body.holeMm / 2 : 0;
+  if (holeR > 0) {
+    const floorOuter = outerRadiusAt(field, scale, hFloor);
+    const bottom = outerRadiusAt(field, scale, 0);
+    let limit = Infinity;
+    for (let j = 0; j < field.nphi; j++) {
+      limit = Math.min(limit, innerOf(floorOuter(j), body.wallMm), bottom(j));
+    }
+    holeR = Math.min(holeR, 0.6 * limit);
+  }
+
+  if (holeR > 0.25) {
+    const holeBottom = b.ring(0, () => holeR);
+    const holeTop = b.ring(floorMm, () => holeR);
+    b.annulusDown(holeBottom, outer[0]);
+    b.inner(holeBottom, holeTop);
+    b.annulusUp(holeTop, inner[0]);
+  } else {
+    b.capDown(outer[0], b.point(0));
+    b.capUp(inner[0], b.point(floorMm));
+  }
+  return b.mesh();
+}
+
 export function buildBody(field: Field, scale: PrintScale, body: Body): Mesh {
   switch (body.kind) {
     case 'solid':
     case 'vase':
       return solid(field, scale);
-    default:
-      throw new Error(`body ${body.kind} not implemented`);
+    case 'hollow':
+      return vessel(field, scale, body, false);
+    case 'planter':
+      return vessel(field, scale, body, true);
   }
 }

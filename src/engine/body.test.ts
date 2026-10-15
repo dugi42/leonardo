@@ -56,3 +56,42 @@ describe('solid body', () => {
     expect(b.positions).toEqual(a.positions);
   });
 });
+
+describe('hollow body', () => {
+  it('is closed with the analytic shell volume', () => {
+    const { mesh, field } = buildMesh(cylinderDesign({ kind: 'hollow', wallMm: 2, floorMm: 2 }), 'preview');
+    const res = checkMesh(mesh);
+    expect(res.ok).toBe(true);
+    const n = field.nphi;
+    const expected = polygonArea(n, 40) * 100 - polygonArea(n, 38) * 98;
+    expect(res.volume / expected).toBeCloseTo(1, 3);
+  });
+
+  it('is closed for a detailed random design', () => {
+    const d = defaultDesign(42);
+    const built = buildMesh({ ...d, modifiers: { twist: -0.8, edginess: 1.5 }, body: { ...d.body, kind: 'hollow' } }, 'preview');
+    expect(checkMesh(built.mesh).ok).toBe(true);
+  });
+});
+
+describe('planter body', () => {
+  it('is a hollow body minus the drainage hole through the floor', () => {
+    const { mesh, field } = buildMesh(cylinderDesign({ kind: 'planter', wallMm: 2, floorMm: 2, holeMm: 8 }), 'preview');
+    const res = checkMesh(mesh);
+    expect(res.ok).toBe(true);
+    const n = field.nphi;
+    const expected = polygonArea(n, 40) * 100 - polygonArea(n, 38) * 98 - polygonArea(n, 4) * 2;
+    expect(res.volume / expected).toBeCloseTo(1, 3);
+  });
+
+  it('falls back to a closed floor when the hole is zero', () => {
+    const planter = buildMesh(cylinderDesign({ kind: 'planter', holeMm: 0 }), 'preview').mesh;
+    const hollow = buildMesh(cylinderDesign({ kind: 'hollow' }), 'preview').mesh;
+    expect(planter.indices.length).toBe(hollow.indices.length);
+  });
+
+  it('shrinks a hole that would cut the wall', () => {
+    const built = buildMesh(cylinderDesign({ kind: 'planter', holeMm: 40 }), 'preview');
+    expect(checkMesh(built.mesh).ok).toBe(true);
+  });
+});
