@@ -42,6 +42,13 @@ describe('PrintPanel', () => {
     expect(screen.getByText(/ g$/)).toBeInTheDocument();
   });
 
+  it('picks filament colour and finish', () => {
+    render(<PrintPanel />);
+    fireEvent.click(screen.getByRole('radio', { name: 'Cyan' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Silk' }));
+    expect(useStore.getState().design.look).toEqual({ color: 'cyan', finish: 'silk' });
+  });
+
   it('toggles the overhang view', () => {
     render(<PrintPanel />);
     fireEvent.click(screen.getByLabelText('Show overhangs'));

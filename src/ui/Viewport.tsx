@@ -4,6 +4,7 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { BufferAttribute, BufferGeometry, CanvasTexture, Color, Object3D } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { printerById } from '../engine/printers';
+import { filamentById, finishMaterial } from '../engine/materials';
 import { editedCoefficients, idx } from '../engine/spectrum';
 import { faceOverhang } from '../engine/stats';
 import { useT } from '../i18n/useT';
@@ -11,22 +12,21 @@ import { useStore } from '../state/store';
 import { Icon } from './icons';
 import { getPreview } from './preview';
 import { basisTint } from './three/basis';
-import { meshToGeometry, SURFACE } from './three/geometry';
+import { meshToGeometry } from './three/geometry';
 
 // Printers think in z-up; so does every mesh we build.
 Object3D.DEFAULT_UP.set(0, 0, 1);
 
-const BASE = new Color(SURFACE.color);
-const HOT = new Color('#ff5b4d');
+const HOT = new Color('#ff3b2f');
 const PLUS = new Color('#f0a63a');
 const MINUS = new Color('#4fb3a5');
 
-function basisColors(weights: Float32Array): Float32Array {
+function basisColors(weights: Float32Array, base: Color): Float32Array {
   const out = new Float32Array(weights.length * 3);
   const c = new Color();
   for (let i = 0; i < weights.length; i++) {
     const w = weights[i];
-    c.copy(BASE).lerp(w >= 0 ? PLUS : MINUS, Math.abs(w) * 0.85);
+    c.copy(base).lerp(w >= 0 ? PLUS : MINUS, Math.abs(w) * 0.85);
     out[3 * i] = c.r;
     out[3 * i + 1] = c.g;
     out[3 * i + 2] = c.b;
@@ -34,11 +34,11 @@ function basisColors(weights: Float32Array): Float32Array {
   return out;
 }
 
-function overhangColors(marks: Float32Array): Float32Array {
+function overhangColors(marks: Float32Array, base: Color): Float32Array {
   const out = new Float32Array(marks.length * 3);
   const c = new Color();
   for (let i = 0; i < marks.length; i++) {
-    c.copy(BASE).lerp(HOT, marks[i]);
+    c.copy(base).lerp(HOT, marks[i]);
     out[3 * i] = c.r;
     out[3 * i + 1] = c.g;
     out[3 * i + 2] = c.b;
@@ -146,6 +146,10 @@ export function Viewport() {
   const design = useDeferredValue(live);
   const preview = getPreview(design);
   const [fitKey, setFitKey] = useState(0);
+  const [turntable, setTurntable] = useState(false);
+  const filament = filamentById(design.look.color);
+  const finish = finishMaterial(design.look.finish);
+  const baseColor = useMemo(() => new Color(filament.hex), [filament.hex]);
   const [below, setBelow] = useState(false);
   useEffect(() => {
     if (mode !== 'print') setBelow(false);
@@ -157,11 +161,11 @@ export function Viewport() {
       const i = idx(hoverCell.k, hoverCell.m);
       const cell = { ...hoverCell, phase: Math.atan2(c.S[i], c.C[i]) };
       const opts = { heightMm: preview.scale.heightMm, offset: preview.scale.offset, twist: design.modifiers.twist };
-      return basisColors(basisTint(preview.mesh, cell, opts));
+      return basisColors(basisTint(preview.mesh, cell, opts), baseColor);
     }
-    if (showOverhang) return overhangColors(faceOverhang(preview.mesh));
+    if (showOverhang) return overhangColors(faceOverhang(preview.mesh), baseColor);
     return undefined;
-  }, [preview, showOverhang, hoverCell, design]);
+  }, [preview, showOverhang, hoverCell, design, baseColor]);
   const geometry = useMemo(() => meshToGeometry(preview.mesh, tint), [preview, tint]);
   useEffect(() => () => geometry.dispose(), [geometry]);
 
@@ -174,7 +178,7 @@ export function Viewport() {
       <div className="viewport-canvas" role="img" aria-label={t('viewport.label')}>
         <Canvas
           dpr={[1, 2]}
-          frameloop="demand"
+          frameloop={turntable ? 'always' : 'demand'}
           camera={{ fov: 30, near: 1, far: 8000, position: [0, -500, 200] }}
           gl={{ antialias: true, alpha: true }}
         >
@@ -187,11 +191,17 @@ export function Viewport() {
             <Lightformer form="ring" intensity={1.6} position={[7, 3, 5]} scale={3} color="#ffd9a0" />
           </Environment>
           <mesh geometry={geometry}>
-            <meshPhysicalMaterial key={tint ? 'tinted' : 'plain'} {...SURFACE} color={tint ? '#ffffff' : SURFACE.color} vertexColors={!!tint} />
+            <meshPhysicalMaterial
+              key={tint ? 'tinted' : 'plain'}
+              {...finish}
+              sheenColor={filament.hex}
+              color={tint ? '#ffffff' : filament.hex}
+              vertexColors={!!tint}
+            />
           </mesh>
           <BedPlate printerId={design.print.printer} strong={mode === 'print'} seeThrough={below} />
           {!below && <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />}
-          <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} />
+          <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} autoRotate={turntable} autoRotateSpeed={1.6} />
           <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} below={below} />
         </Canvas>
       </div>
@@ -202,6 +212,15 @@ export function Viewport() {
         </span>
         <button className="icon-btn" onClick={() => setFitKey((k) => k + 1)} aria-label={t('viewport.reset')} title={t('viewport.reset')}>
           <Icon name="focus" />
+        </button>
+        <button
+          className={turntable ? 'icon-btn on' : 'icon-btn'}
+          onClick={() => setTurntable(!turntable)}
+          aria-pressed={turntable}
+          aria-label={t('viewport.turntable')}
+          title={t('viewport.turntable')}
+        >
+          <Icon name="rotate" />
         </button>
         {mode === 'print' && preview.stats.overhangAreaMm2 > 0 && (
           <>

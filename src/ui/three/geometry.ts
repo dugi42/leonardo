@@ -14,11 +14,3 @@ export function meshToGeometry(mesh: Mesh, vertexColors?: Float32Array): BufferG
   creased.computeBoundingSphere();
   return creased;
 }
-
-export const SURFACE = {
-  color: '#cfd3da',
-  roughness: 0.42,
-  metalness: 0,
-  clearcoat: 0.35,
-  clearcoatRoughness: 0.35,
-} as const;

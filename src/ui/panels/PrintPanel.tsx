@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { BODY_KINDS, defaultDesign, RANGES } from '../../design/schema';
+import { FILAMENTS, FINISHES } from '../../engine/materials';
 import { PRINTERS, type PrinterId } from '../../engine/printers';
 import { useT } from '../../i18n/useT';
 import { useStore } from '../../state/store';
@@ -79,6 +80,40 @@ export function PrintPanel() {
         {body.kind === 'planter' && (
           <Slider label={t('print.hole')} value={body.holeMm} min={RANGES.holeMm[0]} max={RANGES.holeMm[1]} step={0.5} defaultValue={DEFAULTS.body.holeMm} unit="mm" onChange={(holeMm) => updateBody({ holeMm })} />
         )}
+      </section>
+
+      <section className="panel-section">
+        <header className="section-head">
+          <h3>{t('look.title')}</h3>
+          <span className="muted small">{t('look.note')}</span>
+        </header>
+        <div className="swatches" role="radiogroup" aria-label={t('look.title')}>
+          {FILAMENTS.map((f) => (
+            <label key={f.id} className={design.look.color === f.id ? 'swatch on' : 'swatch'} title={t(`color.${f.id}`)}>
+              <input
+                type="radio"
+                name="filament"
+                aria-label={t(`color.${f.id}`)}
+                checked={design.look.color === f.id}
+                onChange={() => useStore.getState().setDesign((d) => ({ ...d, look: { ...d.look, color: f.id } }))}
+              />
+              <span className="chip" style={{ background: f.hex }} />
+            </label>
+          ))}
+        </div>
+        <div className="segmented three" role="radiogroup" aria-label={t('look.finish')}>
+          {FINISHES.map((finish) => (
+            <label key={finish} className={design.look.finish === finish ? 'seg on' : 'seg'}>
+              <input
+                type="radio"
+                name="finish"
+                checked={design.look.finish === finish}
+                onChange={() => useStore.getState().setDesign((d) => ({ ...d, look: { ...d.look, finish } }))}
+              />
+              {t(`finish.${finish}`)}
+            </label>
+          ))}
+        </div>
       </section>
 
       <section className="panel-section">
