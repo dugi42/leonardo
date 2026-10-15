@@ -28,6 +28,8 @@ describe('PrintPanel', () => {
   });
 
   it('warns when the printer forces a smaller size', () => {
+    const d = defaultDesign(1);
+    resetStore({ ...d, spectrum: { ...d.spectrum, K: 1, M: 1 } }); // plain cylinder: height-limited
     render(<PrintPanel />);
     fireEvent.change(screen.getByLabelText('Printer'), { target: { value: 'a1mini' } });
     fireEvent.change(screen.getByLabelText('Height'), { target: { value: '300' } });

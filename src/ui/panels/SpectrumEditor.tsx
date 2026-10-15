@@ -23,6 +23,13 @@ export function SpectrumEditor() {
   const stroke = useRef<{ active: boolean; visited: Set<string> }>({ active: false, visited: new Set() });
 
   const base = useMemo(() => fullCoefficients(seed, spectrum.recipe), [seed, spectrum.recipe]);
+  const maxMag = useMemo(() => {
+    let max = 0;
+    for (let k = 0; k < KMAX; k++)
+      for (let m = 0; m < MMAX; m++)
+        if (k || m) max = Math.max(max, magnitude(base, k, m) * (spectrum.edits[`${k},${m}`] ?? 1));
+    return max;
+  }, [base, spectrum.edits]);
   const editCount = Object.keys(spectrum.edits).length;
 
   const cellAt = (e: PointerEvent) => {
@@ -62,7 +69,7 @@ export function SpectrumEditor() {
   for (let k = 0; k < KMAX; k++) {
     for (let m = 0; m < MMAX; m++) {
       const gain = spectrum.edits[`${k},${m}`] ?? 1;
-      const mag = k === 0 && m === 0 ? 1 : magnitude(base, k, m) * gain;
+      const mag = k === 0 && m === 0 ? maxMag : magnitude(base, k, m) * gain;
       const kept = k < spectrum.K && m < spectrum.M;
       cells.push(
         <rect
@@ -71,7 +78,7 @@ export function SpectrumEditor() {
           y={(KMAX - 1 - k) * CELL}
           width={CELL - 1}
           height={CELL - 1}
-          fill={kilnColor(magnitudeToT(mag))}
+          fill={kilnColor(magnitudeToT(mag, maxMag))}
           opacity={kept ? 1 : 0.22}
         />,
       );

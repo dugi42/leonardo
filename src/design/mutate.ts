@@ -13,7 +13,7 @@ export function randomDesign(seed: number, base: Design = defaultDesign(seed)): 
       K: intBetween(rng, 3, 14),
       M: intBetween(rng, 3, 24),
       recipe: {
-        bulge: uniform(rng, 0.1, 0.9),
+        bulge: uniform(rng, 0.2, 1),
         flutes: uniform(rng, 0, 0.8),
         roughness: uniform(rng, 0.1, 0.8),
         symmetry: chance(0.5) ? intBetween(rng, 2, 8) : 0,
@@ -29,6 +29,9 @@ export function randomDesign(seed: number, base: Design = defaultDesign(seed)): 
     body: base.body,
     print: base.print,
   };
+  // Symmetric designs need at least two flute harmonics inside the kept rectangle.
+  const n = design.spectrum.recipe.symmetry;
+  if (n > 0) design.spectrum.M = Math.max(design.spectrum.M, 2 * n + 1);
   return normaliseDesign(design)!;
 }
 

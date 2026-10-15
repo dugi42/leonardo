@@ -135,11 +135,9 @@ select {
 }
 
 .seed {
+  flex: none;
   color: var(--faint);
   font-size: 12.5px;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 

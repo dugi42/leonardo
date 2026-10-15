@@ -79,7 +79,7 @@ function CameraRig({ width, height, fitKey }: { width: number; height: number; f
   useEffect(() => {
     const r = Math.hypot(width / 2, height / 2);
     const fov = 'fov' in camera ? (camera.fov as number) : 30;
-    const dist = (r / Math.sin((fov * Math.PI) / 360)) * 1.15;
+    const dist = (r / Math.sin((fov * Math.PI) / 360)) * 1.45;
     camera.position.set(dist * 0.32, -dist * 0.9, height / 2 + dist * 0.3);
     const c = controls as unknown as OrbitControlsImpl | null;
     c?.target.set(0, 0, height / 2);
