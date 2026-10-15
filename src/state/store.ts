@@ -22,6 +22,8 @@ interface State {
   toast: Toast | null;
   /** Bumped whenever the saved history changes, so lists reload. */
   historyVersion: number;
+  showOverhang: boolean;
+  setShowOverhang: (on: boolean) => void;
   bumpHistory: () => void;
   setDesign: (next: Design | ((d: Design) => Design)) => void;
   newDesign: () => void;
@@ -47,6 +49,8 @@ export const useStore = create<State>()((set, get) => ({
   lastChange: -Infinity,
   toast: null,
   historyVersion: 0,
+  showOverhang: false,
+  setShowOverhang: (showOverhang) => set({ showOverhang }),
   bumpHistory: () => set((s) => ({ historyVersion: s.historyVersion + 1 })),
 
   setDesign: (next) => {
