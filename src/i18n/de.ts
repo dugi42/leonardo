@@ -47,6 +47,7 @@ export const de: Record<MessageKey, string> = {
   'shape.reroll': 'Neu würfeln',
   'modifiers.title': 'Modifikatoren',
   'modifiers.twist': 'Verdrehung',
+  'modifiers.turns': 'Umdr.',
   'modifiers.edginess': 'Ecken',
   'print.title': 'Druckeinstellungen',
   'print.printer': 'Drucker',

@@ -45,6 +45,7 @@ export const en = {
   'shape.reroll': 'Reroll',
   'modifiers.title': 'Modifiers',
   'modifiers.twist': 'Twist',
+  'modifiers.turns': 'turns',
   'modifiers.edginess': 'Corners',
   'print.title': 'Print setup',
   'print.printer': 'Printer',
