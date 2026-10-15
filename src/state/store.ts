@@ -6,6 +6,12 @@ import { initialLang, persistLang, type Lang } from '../i18n';
 
 export type Mode = 'explore' | 'refine' | 'print';
 
+export interface ExploreState {
+  tiles: Design[];
+  selected: number;
+  temperature: number;
+}
+
 export interface Toast {
   id: number;
   text: string;
@@ -23,6 +29,8 @@ interface State {
   /** Bumped whenever the saved history changes, so lists reload. */
   historyVersion: number;
   showOverhang: boolean;
+  explore: ExploreState;
+  setExplore: (patch: Partial<ExploreState>) => void;
   setShowOverhang: (on: boolean) => void;
   bumpHistory: () => void;
   setDesign: (next: Design | ((d: Design) => Design)) => void;
@@ -50,6 +58,8 @@ export const useStore = create<State>()((set, get) => ({
   toast: null,
   historyVersion: 0,
   showOverhang: false,
+  explore: { tiles: [], selected: 0, temperature: 0.35 },
+  setExplore: (patch) => set((s) => ({ explore: { ...s.explore, ...patch } })),
   setShowOverhang: (showOverhang) => set({ showOverhang }),
   bumpHistory: () => set((s) => ({ historyVersion: s.historyVersion + 1 })),
 
