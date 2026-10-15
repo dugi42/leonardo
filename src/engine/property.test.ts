@@ -4,18 +4,26 @@ import { sfc32 } from './prng';
 import { BED_MARGIN_MM } from './constants';
 import { buildMesh } from './mesh';
 import { printerById, PRINTERS } from './printers';
+import { ARCHETYPE_IDS, RIMS } from './profile';
 import { checkMesh } from './validate';
 
 function designs(): Design[] {
   const rng = sfc32(2026);
-  return Array.from({ length: 100 }, (_, i) => {
+  return Array.from({ length: 168 }, (_, i) => {
     const base = defaultDesign(0);
     const printer = PRINTERS[i % PRINTERS.length].id;
     const d = randomDesign(Math.floor(rng() * 2 ** 32), {
       ...base,
-      body: { kind: BODY_KINDS[i % 4], wallMm: 0.8 + rng() * 4, floorMm: 0.8 + rng() * 4, holeMm: rng() * 30 },
+      body: { kind: BODY_KINDS[Math.floor(i / 21) % 4], wallMm: 0.8 + rng() * 4, floorMm: 0.8 + rng() * 4, holeMm: rng() * 30 },
       print: { printer, heightMm: 40 + rng() * 300 },
     });
+    // Cover every archetype x rim x body combination, with and without a foot.
+    d.form = {
+      archetype: ARCHETYPE_IDS[i % ARCHETYPE_IDS.length],
+      rim: RIMS[Math.floor(i / ARCHETYPE_IDS.length) % RIMS.length],
+      proportion: rng(),
+      foot: i % 2 ? rng() : 0,
+    };
     // Push some designs to the extremes of the modifiers.
     if (i % 5 === 0) d.modifiers = { twist: 2 * (rng() * 2 - 1), edginess: 5 * rng() };
     if (i % 7 === 0) d.spectrum = { ...d.spectrum, K: 24, M: 32, recipe: { ...d.spectrum.recipe, roughness: 1, bulge: 1, flutes: 1 } };
