@@ -60,3 +60,9 @@ Thumbs.db
 output/
 *.3mf
 *.egg-info/
+
+node_modules/
+dist/
+test-results/
+playwright-report/
+.netlify/
