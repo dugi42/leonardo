@@ -102,6 +102,12 @@ export const de: Record<MessageKey, string> = {
   'history.unavailable': 'Der Verlauf braucht Browser-Speicher, der in diesem Fenster blockiert ist.',
   'error.badLink': 'Dieser Link enthält kein gültiges Design. Dein aktuelles Design bleibt offen.',
   'error.mesh': 'Dieses Design lässt sich nicht exportieren ({reason}). Ändere eine Einstellung.',
+  'explore.parent': 'Original',
+  'explore.variation': 'Variation {n}',
+  'viewport.loading': '3D-Ansicht wird geladen…',
+  'viewport.below': 'Von unten ansehen',
+  'viewport.above': 'Zurück zur Rundumansicht',
+  'viewport.overhang': '{area} cm² Überhang',
   'viewport.reset': 'Ansicht zurücksetzen',
   'viewport.label': '3D-Vorschau des aktuellen Designs',
 };

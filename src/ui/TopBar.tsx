@@ -12,6 +12,7 @@ export function TopBar({ onHistory }: { onHistory?: () => void }) {
   const lang = useStore((s) => s.lang);
   const canUndo = useStore((s) => s.past.length > 0);
   const canRedo = useStore((s) => s.future.length > 0);
+  const exporting = useStore((s) => s.exporting);
   const { setMode, setLang, newDesign, undo, redo } = useStore.getState();
 
   return (
@@ -61,11 +62,24 @@ export function TopBar({ onHistory }: { onHistory?: () => void }) {
           </button>
         </div>
         <div className="group export">
-          <button className="btn primary" onClick={() => exportCurrent('3mf')} title={t('action.exportTitle', { format: '3MF' })}>
-            <Icon name="download" />
+          <button
+            className="btn primary"
+            onClick={() => exportCurrent('3mf')}
+            aria-busy={exporting === '3mf'}
+            aria-disabled={exporting !== null}
+            title={t('action.exportTitle', { format: '3MF' })}
+          >
+            {exporting === '3mf' ? <span className="spinner" aria-hidden="true" /> : <Icon name="download" />}
             {t('action.export3mf')}
           </button>
-          <button className="btn" onClick={() => exportCurrent('stl')} title={t('action.exportTitle', { format: 'STL' })}>
+          <button
+            className="btn"
+            onClick={() => exportCurrent('stl')}
+            aria-busy={exporting === 'stl'}
+            aria-disabled={exporting !== null}
+            title={t('action.exportTitle', { format: 'STL' })}
+          >
+            {exporting === 'stl' && <span className="spinner" aria-hidden="true" />}
             {t('action.exportStl')}
           </button>
         </div>

@@ -12,7 +12,7 @@ vi.mock('./thumbnail', () => ({ renderThumbnail: vi.fn(async () => undefined) })
 beforeEach(() => {
   history.replaceState(null, '', '/');
   resetStore(defaultDesign(1));
-  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35 } });
+  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35, kind: 'shuffle' } });
 });
 
 describe('App', () => {

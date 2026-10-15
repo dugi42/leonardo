@@ -10,6 +10,8 @@ export interface ExploreState {
   tiles: Design[];
   selected: number;
   temperature: number;
+  /** Variations put the parent in the centre tile. */
+  kind: 'shuffle' | 'variations';
 }
 
 export interface Toast {
@@ -29,6 +31,8 @@ interface State {
   /** Bumped whenever the saved history changes, so lists reload. */
   historyVersion: number;
   showOverhang: boolean;
+  /** Format being exported, or null; export buttons are busy meanwhile. */
+  exporting: 'stl' | '3mf' | null;
   /** Spectrum cell under the pointer; the viewport tints the model by its basis function. */
   hoverCell: { k: number; m: number } | null;
   setHoverCell: (cell: { k: number; m: number } | null) => void;
@@ -61,9 +65,10 @@ export const useStore = create<State>()((set, get) => ({
   toast: null,
   historyVersion: 0,
   showOverhang: false,
+  exporting: null,
   hoverCell: null,
   setHoverCell: (hoverCell) => set({ hoverCell }),
-  explore: { tiles: [], selected: 0, temperature: 0.35 },
+  explore: { tiles: [], selected: 0, temperature: 0.35, kind: 'shuffle' },
   setExplore: (patch) => set((s) => ({ explore: { ...s.explore, ...patch } })),
   setShowOverhang: (showOverhang) => set({ showOverhang }),
   bumpHistory: () => set((s) => ({ historyVersion: s.historyVersion + 1 })),

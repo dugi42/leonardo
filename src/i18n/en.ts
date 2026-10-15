@@ -100,6 +100,12 @@ export const en = {
   'history.unavailable': 'History needs browser storage, which is blocked in this window.',
   'error.badLink': 'This link has no valid design. Showing your current design instead.',
   'error.mesh': 'This design cannot be exported ({reason}). Change a setting to continue.',
+  'explore.parent': 'Parent',
+  'explore.variation': 'Variation {n}',
+  'viewport.loading': 'Loading 3D view…',
+  'viewport.below': 'View from below',
+  'viewport.above': 'Back to orbit view',
+  'viewport.overhang': '{area} cm² overhang',
   'viewport.reset': 'Reset view',
   'viewport.label': '3D preview of the current design',
 } as const;

@@ -221,6 +221,26 @@ select {
   gap: 6px;
 }
 
+.btn[aria-disabled='true']:not([aria-busy='true']) {
+  opacity: 0.5;
+  cursor: progress;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .icon-btn.starred {
   color: var(--kiln);
 }
@@ -750,6 +770,25 @@ select {
   font-size: 12.5px;
 }
 
+.overhang-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffc3bc;
+}
+
+.overhang-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--coral);
+}
+
+.hud-btn {
+  background: rgba(13, 16, 20, 0.7);
+  border-radius: 999px;
+}
+
 .viewport-hud .icon-btn {
   background: rgba(13, 16, 20, 0.7);
   border: 1px solid var(--line);
@@ -771,6 +810,11 @@ select {
 .viewport-loading {
   position: absolute;
   inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muted);
   background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.03) 50%, transparent 60%) 0 0 / 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
@@ -827,6 +871,12 @@ select {
   height: 100%;
   background: linear-gradient(110deg, transparent 40%, rgba(255, 255, 255, 0.04) 50%, transparent 60%) 0 0 / 200% 100%;
   animation: shimmer 1.4s linear infinite;
+}
+
+.tile-seed.parent {
+  color: var(--kiln-ink);
+  background: var(--kiln);
+  font-weight: 600;
 }
 
 .tile-seed {

@@ -8,7 +8,7 @@ vi.mock('../thumbnail', () => ({ renderThumbnail: vi.fn(async () => undefined) }
 
 beforeEach(() => {
   resetStore(defaultDesign(1));
-  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35 } });
+  useStore.setState({ lang: 'en', explore: { tiles: [], selected: 0, temperature: 0.35, kind: 'shuffle' } });
 });
 
 const tiles = () => screen.getAllByRole('button', { name: /^Design \d+/ });
@@ -38,6 +38,17 @@ describe('ExploreGrid', () => {
     expect(selected).toBe(4);
     expect(next[4]).toEqual(parent);
     expect(next.filter((d) => JSON.stringify(d) === JSON.stringify(parent))).toHaveLength(1);
+  });
+
+  it('labels the parent and its variations', () => {
+    render(<><ExploreGrid /><ExplorePanel /></>);
+    fireEvent.click(tiles()[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Variations' }));
+    expect(screen.getByText('Parent')).toBeInTheDocument();
+    expect(screen.getByText('Variation 1')).toBeInTheDocument();
+    expect(screen.getByText('Variation 8')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Shuffle' }));
+    expect(screen.queryByText('Parent')).toBeNull();
   });
 
   it('opens the selected design in Refine', () => {
