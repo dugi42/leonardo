@@ -593,6 +593,11 @@ select {
   inset: 0;
 }
 
+.viewport-canvas {
+  position: absolute;
+  inset: 0;
+}
+
 .viewport canvas {
   touch-action: none;
 }

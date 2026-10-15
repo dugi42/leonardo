@@ -138,29 +138,31 @@ export function Viewport() {
   useEffect(() => setFitKey((k) => k + 1), [mode, design.print.printer]);
 
   return (
-    <div className="viewport" aria-label={t('viewport.label')} role="img">
-      <Canvas
-        dpr={[1, 2]}
-        frameloop="demand"
-        camera={{ fov: 30, near: 1, far: 8000, position: [0, -500, 200] }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <ambientLight intensity={0.35} color="#9aa6c0" />
-        <directionalLight position={[180, -260, 420]} intensity={2.1} color="#fff3e0" />
-        <directionalLight position={[-300, 220, 120]} intensity={0.9} color="#7fd0c4" />
-        <Environment resolution={256}>
-          <Lightformer form="rect" intensity={2.2} position={[0, -6, 6]} scale={[10, 4, 1]} color="#ffffff" />
-          <Lightformer form="rect" intensity={1.2} position={[-8, 4, 3]} scale={[4, 8, 1]} color="#bfe9e2" />
-          <Lightformer form="ring" intensity={1.6} position={[7, 3, 5]} scale={3} color="#ffd9a0" />
-        </Environment>
-        <mesh geometry={geometry}>
-          <meshPhysicalMaterial {...SURFACE} color={showOverhang ? '#ffffff' : SURFACE.color} vertexColors={showOverhang} />
-        </mesh>
-        <BedPlate printerId={design.print.printer} strong={mode === 'print'} />
-        <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />
-        <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} />
-        <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} />
-      </Canvas>
+    <div className="viewport">
+      <div className="viewport-canvas" role="img" aria-label={t('viewport.label')}>
+        <Canvas
+          dpr={[1, 2]}
+          frameloop="demand"
+          camera={{ fov: 30, near: 1, far: 8000, position: [0, -500, 200] }}
+          gl={{ antialias: true, alpha: true }}
+        >
+          <ambientLight intensity={0.35} color="#9aa6c0" />
+          <directionalLight position={[180, -260, 420]} intensity={2.1} color="#fff3e0" />
+          <directionalLight position={[-300, 220, 120]} intensity={0.9} color="#7fd0c4" />
+          <Environment resolution={256}>
+            <Lightformer form="rect" intensity={2.2} position={[0, -6, 6]} scale={[10, 4, 1]} color="#ffffff" />
+            <Lightformer form="rect" intensity={1.2} position={[-8, 4, 3]} scale={[4, 8, 1]} color="#bfe9e2" />
+            <Lightformer form="ring" intensity={1.6} position={[7, 3, 5]} scale={3} color="#ffd9a0" />
+          </Environment>
+          <mesh geometry={geometry}>
+            <meshPhysicalMaterial {...SURFACE} color={showOverhang ? '#ffffff' : SURFACE.color} vertexColors={showOverhang} />
+          </mesh>
+          <BedPlate printerId={design.print.printer} strong={mode === 'print'} />
+          <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />
+          <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} />
+          <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} />
+        </Canvas>
+      </div>
 
       <div className="viewport-hud">
         <span className="dims">

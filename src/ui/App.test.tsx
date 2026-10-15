@@ -28,6 +28,7 @@ describe('App', () => {
     history.replaceState(null, '', `/#d=${encodeDesign(shared)}`);
     render(<App />);
     expect(useStore.getState().design).toEqual(shared);
+    expect(useStore.getState().past).toHaveLength(0);
   });
 
   it('keeps the current design and explains a broken link', () => {

@@ -111,6 +111,6 @@ export const useStore = create<State>()((set, get) => ({
 }));
 
 /** Test and load helper: start over with a given design and empty undo history. */
-export function resetStore(design: Design) {
-  useStore.setState({ design, past: [], future: [], lastChange: -Infinity, mode: 'refine', toast: null });
+export function resetStore(design: Design, mode: Mode = 'refine') {
+  useStore.setState({ design, past: [], future: [], lastChange: -Infinity, mode, toast: null });
 }
