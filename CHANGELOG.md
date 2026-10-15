@@ -7,13 +7,29 @@ All notable changes to this project are documented here. The format follows
 Because a seed maps to a design through the geometry code, any change that
 alters what a seed produces is a **major** release.
 
-## [Unreleased]
+## [3.0.0] - 2026-10-15
 
-### Changed
+### Changed (breaking)
 
-- Project tooling moved from pip to [uv](https://docs.astral.sh/uv/): dev
-  dependencies live in `[dependency-groups]`, `uv.lock` pins the full tree, and
-  the Dockerfile and CI install with `uv sync --locked`. Local setup is `uv sync`.
+Leonardo is now a browser app written in TypeScript and deployed on Netlify. Seeds
+from 2.x do not reproduce in 3.x.
+
+- Shapes are Fourier spectra: `r(h, φ) = Σ (C cos mφ + S sin mφ) cos(πkh)`. The
+  csym model is replaced by the spectrum vessel. The rsym ellipsoid/torus model is
+  removed. Twist and superellipse corners remain as modifiers. Tilt is removed
+  because it caused most of the unprintable overhangs.
+- New workflow:
+  - Explore grid with variations.
+  - Spectrum heatmap editor with K × M truncation and boost/damp brushes.
+  - Undo/redo, a share URL in the address bar, and IndexedDB history with
+    favourites.
+- Print setup:
+  - Bambu printer presets with a bed view.
+  - Solid, vase-mode, hollow and planter bodies.
+  - Overhang heatmap, plus size, volume and PLA weight estimates.
+- English and German interface.
+- Removed: the Python package, the Dash UI, the CLI, the Docker image and the
+  Raspberry Pi deployment.
 
 ## [2.0.0] - 2026-09-19
 
