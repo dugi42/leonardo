@@ -40,6 +40,12 @@ describe('to3mf', () => {
     expect(xml).toContain('<metadata name="Title">Leonardo 4</metadata>');
   });
 
+  it('carries the filament colour as a base material', () => {
+    const xml = strFromU8(unzipSync(to3mf(mesh, { title: 't', description: '', color: { name: 'Cyan', hex: '#0086d6' } }))['3D/3dmodel.model']);
+    expect(xml).toContain('<base name="Cyan" displaycolor="#0086D6FF"/>');
+    expect(xml).toMatch(/<object id="1" type="model" pid="2" pindex="0">/);
+  });
+
   it('escapes metadata', () => {
     const xml = strFromU8(unzipSync(to3mf(mesh, { title: 'a<b&c', description: '' }))['3D/3dmodel.model']);
     expect(xml).toContain('a&lt;b&amp;c');

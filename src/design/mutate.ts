@@ -37,6 +37,7 @@ export function randomDesign(seed: number, base: Design = defaultDesign(seed)): 
     },
     body: base.body,
     print: base.print,
+    look: base.look,
   };
   // Symmetric designs need at least two flute harmonics inside the kept rectangle.
   const n = design.spectrum.recipe.symmetry;

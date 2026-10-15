@@ -16,6 +16,11 @@ describe('randomDesign', () => {
     }
   });
 
+  it('keeps the look of a base design', () => {
+    const base = { ...defaultDesign(1), look: { color: 'pink' as const, finish: 'silk' as const } };
+    expect(randomDesign(5, base).look).toEqual(base.look);
+  });
+
   it('keeps body and print settings of a base design', () => {
     const base = { ...defaultDesign(1), body: { kind: 'hollow' as const, wallMm: 3, floorMm: 2, holeMm: 8 } };
     expect(randomDesign(5, base).body).toEqual(base.body);

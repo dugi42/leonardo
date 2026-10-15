@@ -47,3 +47,10 @@ describe('codec versions', () => {
     expect(d.form).toEqual({ archetype: 'cylinder', proportion: 0.56, rim: 'flat', foot: 0 });
   });
 });
+
+describe('codec look', () => {
+  it('round-trips colour and finish', () => {
+    const d = { ...defaultDesign(3), look: { color: 'orange' as const, finish: 'matte' as const } };
+    expect(decodeDesign(encodeDesign(d))).toEqual(d);
+  });
+});

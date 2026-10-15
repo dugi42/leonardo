@@ -1,4 +1,5 @@
 import { KMAX, MMAX } from '../engine/constants';
+import { FILAMENT_IDS, FINISHES, type FilamentId, type Finish } from '../engine/materials';
 import { PRINTERS, type PrinterId } from '../engine/printers';
 import { ARCHETYPE_IDS, ARCHETYPES, RIMS, type ArchetypeId, type Rim } from '../engine/profile';
 
@@ -50,6 +51,11 @@ export interface Form {
   foot: number;
 }
 
+export interface Look {
+  color: FilamentId;
+  finish: Finish;
+}
+
 export interface Design {
   v: 2;
   seed: number;
@@ -58,6 +64,7 @@ export interface Design {
   modifiers: Modifiers;
   body: Body;
   print: PrintSettings;
+  look: Look;
 }
 
 type Range = readonly [number, number];
@@ -98,6 +105,7 @@ export function defaultDesign(seed: number): Design {
     modifiers: { twist: 0, edginess: 0 },
     body: { kind: 'solid', wallMm: 2, floorMm: 2, holeMm: 8 },
     print: { printer: 'p1s', heightMm: 120 },
+    look: { color: 'white', finish: 'basic' },
   };
 }
 
@@ -146,6 +154,9 @@ export function normaliseDesign(input: unknown): Design | null {
     ? (form.archetype as ArchetypeId)
     : d.form.archetype;
   const rim = RIMS.includes(form.rim as Rim) ? (form.rim as Rim) : d.form.rim;
+  const look = isObject(input.look) ? input.look : {};
+  const color = FILAMENT_IDS.includes(look.color as FilamentId) ? (look.color as FilamentId) : d.look.color;
+  const finish = FINISHES.includes(look.finish as Finish) ? (look.finish as Finish) : d.look.finish;
   const printer = PRINTERS.some((p) => p.id === print.printer)
     ? (print.printer as PrinterId)
     : d.print.printer;
@@ -182,5 +193,6 @@ export function normaliseDesign(input: unknown): Design | null {
       holeMm: num(body, 'holeMm', d.body.holeMm),
     },
     print: { printer, heightMm: num(print, 'heightMm', d.print.heightMm) },
+    look: { color, finish },
   };
 }

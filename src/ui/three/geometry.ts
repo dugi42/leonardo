@@ -8,7 +8,7 @@ export function meshToGeometry(mesh: Mesh, vertexColors?: Float32Array): BufferG
   g.setAttribute('position', new BufferAttribute(mesh.positions, 3));
   if (vertexColors) g.setAttribute('color', new BufferAttribute(vertexColors, 3));
   g.setIndex(new BufferAttribute(mesh.indices, 1));
-  const creased = toCreasedNormals(g, Math.PI / 4);
+  const creased = toCreasedNormals(g, Math.PI / 3);
   g.dispose();
   creased.computeBoundingBox();
   creased.computeBoundingSphere();

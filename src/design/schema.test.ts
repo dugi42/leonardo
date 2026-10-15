@@ -74,3 +74,14 @@ describe('form', () => {
     expect(normaliseDesign({ seed: 1, form })!.form).toEqual(form);
   });
 });
+
+describe('look', () => {
+  it('defaults to white basic PLA', () => {
+    expect(defaultDesign(1).look).toEqual({ color: 'white', finish: 'basic' });
+  });
+
+  it('normalises unknown colours and finishes', () => {
+    expect(normaliseDesign({ seed: 1, look: { color: 'chartreuse', finish: 'velvet' } })!.look).toEqual({ color: 'white', finish: 'basic' });
+    expect(normaliseDesign({ seed: 1, look: { color: 'cyan', finish: 'silk' } })!.look).toEqual({ color: 'cyan', finish: 'silk' });
+  });
+});

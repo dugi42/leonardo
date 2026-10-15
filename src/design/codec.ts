@@ -1,3 +1,4 @@
+import { FILAMENT_IDS, FINISHES } from '../engine/materials';
 import { ARCHETYPE_IDS, RIMS } from '../engine/profile';
 import { BODY_KINDS, normaliseDesign, type Design } from './schema';
 
@@ -5,10 +6,12 @@ import { BODY_KINDS, normaliseDesign, type Design } from './schema';
  * Compact, versioned URL payload. Arrays keep it short:
  * r = recipe [bulge, flutes, roughness, symmetry, ribs, ribFrequency],
  * m = modifiers [twist, edginess], b = body [kind, wall, floor, hole], p = print [printer, height],
- * f = form [archetype, proportion, rim, foot] (v2; v1 links predate forms).
+ * f = form [archetype, proportion, rim, foot] (v2; v1 links predate forms),
+ * l = look [colour, finish] (optional).
  */
 interface Wire {
   v: 1 | 2;
+  l?: [number, number];
   f?: [number, number, number, number];
   s: number;
   k: [number, number];
@@ -41,6 +44,7 @@ export function encodeDesign(d: Design): string {
     p: [d.print.printer, d.print.heightMm],
   };
   if (Object.keys(d.spectrum.edits).length) wire.e = d.spectrum.edits;
+  wire.l = [FILAMENT_IDS.indexOf(d.look.color), FINISHES.indexOf(d.look.finish)];
   return toBase64Url(JSON.stringify(wire));
 }
 
@@ -68,5 +72,6 @@ export function decodeDesign(payload: string): Design | null {
     modifiers: { twist: wire.m?.[0], edginess: wire.m?.[1] },
     body: { kind: BODY_KINDS[wire.b?.[0] ?? -1], wallMm: wire.b?.[1], floorMm: wire.b?.[2], holeMm: wire.b?.[3] },
     print: { printer: wire.p?.[0], heightMm: wire.p?.[1] },
+    look: { color: FILAMENT_IDS[wire.l?.[0] ?? -1], finish: FINISHES[wire.l?.[1] ?? -1] },
   });
 }
