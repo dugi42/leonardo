@@ -7,6 +7,49 @@ All notable changes to this project are documented here. The format follows
 Because a seed maps to a design through the geometry code, any change that
 alters what a seed produces is a **major** release.
 
+## [3.1.0] - 2026-10-15
+
+### Changed (breaking)
+
+Seeds and links from 3.0 produce different shapes. 3.0 links still open; they load as
+cylinders with the old proportions.
+
+- **Form language.** Every design starts from one of seven forms: cylinder, tumbler,
+  vase, bottle, bowl, lantern or amphora.
+  - **Proportion** runs from slender to squat.
+  - **Rim** is flat, round or flared. On hollow and planter bodies a round rim is a
+    real half-round lip.
+  - **Foot** adds an optional pedestal.
+- **Spectrum on the log radius.** The spectrum now describes the log of the radius on
+  top of the form, and extreme detail is softly limited.
+  - Deep flutes become ridges instead of flat star plateaus or thin fins.
+  - Random designs favour symmetric flutes.
+
+### Added
+
+- **Spectrum editor.**
+  - Tick labels.
+  - A hover readout of k, m and strength.
+  - While you hover a cell, the 3D model is tinted with what that frequency does.
+  - Boost (×1.6) and Damp (×0.5) are stronger, and Boost now works on empty cells.
+- **Filament.** 13 approximate PLA colours and three finishes (matte, basic, silk),
+  shown in the viewport and the thumbnails. The colour is written into the 3MF as a
+  base material.
+- **Viewport.**
+  - Turntable toggle.
+  - Overhang chip and "View from below".
+  - Loading state while the 3D view loads.
+- **Export.** The buttons show when an export is running; a second click does not
+  start a second export.
+- **Explore.** Variation tiles are labelled Parent and Variation 1–8.
+
+### Fixed
+
+- The overhang and tint colours were never visible because the material did not
+  update when vertex colours were switched on.
+- Opening an Explore tile no longer resets your filament, body and printer settings.
+- The "Built with Netlify" badge no longer covers controls.
+
 ## [3.0.0] - 2026-10-15
 
 ### Changed (breaking)

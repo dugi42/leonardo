@@ -1,9 +1,10 @@
 # Leonardo
 
-Leonardo designs printable vessels from their Fourier spectrum. The shape is a radius
-field `r(h, φ)`. A cosine series runs up the height and a Fourier series goes around the
-rim. Every design is a small grid of coefficients, and summing them back gives the
-surface. The background is in [docs/fourier-reconstruction.md](docs/fourier-reconstruction.md).
+Leonardo designs printable vessels from their Fourier spectrum. Each design starts from
+a form: a profile with proportion, rim and foot. A spectrum of the log radius sits on
+top of it, `r(h, φ) = form(h) · exp(Σ (C cos mφ + S sin mφ) cos(πkh))`. A cosine series
+runs up the height and a Fourier series goes around the rim. The background is in
+[docs/fourier-reconstruction.md](docs/fourier-reconstruction.md).
 
 The app runs fully in the browser and needs no server. It exports watertight,
 millimetre-scaled STL and 3MF files, ready for Bambu Studio or any other slicer.
@@ -18,8 +19,11 @@ millimetre-scaled STL and 3MF files, ready for Bambu Studio or any other slicer.
    nine designs near it. **Variation strength** sets how far they stray. Press Space
    to shuffle.
 2. **Refine** has these controls:
+   - **Form**: cylinder, tumbler, vase, bottle, bowl, lantern or amphora, plus
+     proportion, rim (flat, round, flared) and foot.
    - **Spectrum editor**: a heatmap of the coefficient grid. Rows are height
      frequencies (k), columns are rim frequencies (m).
+     - Hover a cell to see what it shapes on the model.
      - Drag the corner to keep fewer terms (K × M truncation).
      - Use **Boost** or **Damp** to paint gains onto single frequencies.
    - **Shape**: bulge, flutes, detail, symmetry and ribs.
@@ -31,8 +35,9 @@ millimetre-scaled STL and 3MF files, ready for Bambu Studio or any other slicer.
      - **Vase mode**: closed, for spiral vase printing.
      - **Hollow**: real walls and floor.
      - **Planter**: hollow, with a drainage hole.
+   - Choose a **filament** colour and finish. The colour goes into the 3MF.
    - Read the estimates: size, volume, PLA grams and overhang area. **Show overhangs**
-     paints faces that lean more than 45°.
+     paints faces that lean more than 45°, and **View from below** shows the underside.
 4. **3MF** and **STL** download the export-resolution mesh. It is built in a Web
    Worker.
 
