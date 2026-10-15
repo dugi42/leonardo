@@ -57,3 +57,20 @@ describe('normaliseDesign', () => {
     expect(normaliseDesign({ seed: -1 })!.seed).toBe(4294967295);
   });
 });
+
+describe('form', () => {
+  it('defaults to a vase with a flat rim and no foot', () => {
+    expect(defaultDesign(1).form).toEqual({ archetype: 'vase', proportion: 0.25, rim: 'flat', foot: 0 });
+    expect(defaultDesign(1).v).toBe(2);
+  });
+
+  it('normalises unknown archetypes and rims and clamps numbers', () => {
+    const out = normaliseDesign({ seed: 1, form: { archetype: 'teapot', rim: 'wavy', proportion: 3, foot: -1 } })!;
+    expect(out.form).toEqual({ archetype: 'vase', proportion: 1, rim: 'flat', foot: 0 });
+  });
+
+  it('keeps a valid form', () => {
+    const form = { archetype: 'bowl', proportion: 0.8, rim: 'round', foot: 0.5 };
+    expect(normaliseDesign({ seed: 1, form })!.form).toEqual(form);
+  });
+});

@@ -1,5 +1,6 @@
 import { KMAX, MMAX } from '../engine/constants';
 import { PRINTERS, type PrinterId } from '../engine/printers';
+import { ARCHETYPE_IDS, ARCHETYPES, RIMS, type ArchetypeId, type Rim } from '../engine/profile';
 
 export type BodyKind = 'solid' | 'vase' | 'hollow' | 'planter';
 export const BODY_KINDS: readonly BodyKind[] = ['solid', 'vase', 'hollow', 'planter'];
@@ -40,9 +41,19 @@ export interface PrintSettings {
   heightMm: number;
 }
 
+export interface Form {
+  archetype: ArchetypeId;
+  /** 0 slender .. 1 squat */
+  proportion: number;
+  rim: Rim;
+  /** 0 none .. 1 pronounced pedestal */
+  foot: number;
+}
+
 export interface Design {
-  v: 1;
+  v: 2;
   seed: number;
+  form: Form;
   spectrum: Spectrum;
   modifiers: Modifiers;
   body: Body;
@@ -67,14 +78,17 @@ export const RANGES = {
   floorMm: [0.8, 10],
   holeMm: [0, 40],
   heightMm: [20, 400],
+  proportion: [0, 1],
+  foot: [0, 1],
 } as const satisfies Record<string, Range>;
 
 const INTEGER_FIELDS = new Set(['K', 'M', 'symmetry', 'ribFrequency']);
 
 export function defaultDesign(seed: number): Design {
   return {
-    v: 1,
+    v: 2,
     seed: seed >>> 0,
+    form: { archetype: 'vase', proportion: ARCHETYPES.vase.proportion, rim: 'flat', foot: 0 },
     spectrum: {
       K: 8,
       M: 12,
@@ -127,12 +141,23 @@ export function normaliseDesign(input: unknown): Design | null {
   const body = isObject(input.body) ? input.body : {};
   const print = isObject(input.print) ? input.print : {};
   const kind = BODY_KINDS.includes(body.kind as BodyKind) ? (body.kind as BodyKind) : d.body.kind;
+  const form = isObject(input.form) ? input.form : {};
+  const archetype = ARCHETYPE_IDS.includes(form.archetype as ArchetypeId)
+    ? (form.archetype as ArchetypeId)
+    : d.form.archetype;
+  const rim = RIMS.includes(form.rim as Rim) ? (form.rim as Rim) : d.form.rim;
   const printer = PRINTERS.some((p) => p.id === print.printer)
     ? (print.printer as PrinterId)
     : d.print.printer;
   return {
-    v: 1,
+    v: 2,
     seed,
+    form: {
+      archetype,
+      proportion: num(form, 'proportion', d.form.proportion),
+      rim,
+      foot: num(form, 'foot', d.form.foot),
+    },
     spectrum: {
       K: num(sp, 'K', d.spectrum.K),
       M: num(sp, 'M', d.spectrum.M),
