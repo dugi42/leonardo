@@ -16,10 +16,10 @@ beforeEach(() => {
 });
 
 describe('App', () => {
-  it('renders the workspace', () => {
+  it('renders the workspace', async () => {
     render(<App />);
     expect(screen.getByText('Leonardo')).toBeInTheDocument();
-    expect(screen.getByTestId('viewport')).toBeInTheDocument();
+    expect(await screen.findByTestId('viewport')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Spectrum' })).toBeInTheDocument();
   });
 

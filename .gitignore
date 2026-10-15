@@ -5,8 +5,6 @@ dist/
 # Compiled Java class files
 *.class
 
-# Compiled Python bytecode
-*.py[cod]
 
 # Log files
 *.log
@@ -55,11 +53,7 @@ Thumbs.db
 
 
 
-# venv / outputs
-.venv/
-output/
-*.3mf
-*.egg-info/
+
 
 node_modules/
 dist/

@@ -1,7 +1,7 @@
-import { ContactShadows, Environment, Lightformer, OrbitControls } from '@react-three/drei';
+import { Environment, Lightformer, OrbitControls } from '@react-three/drei';
 import { Canvas, useThree } from '@react-three/fiber';
 import { useDeferredValue, useEffect, useMemo, useState } from 'react';
-import { BufferAttribute, BufferGeometry, Color, Object3D } from 'three';
+import { BufferAttribute, BufferGeometry, CanvasTexture, Color, Object3D } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { printerById } from '../engine/printers';
 import { faceOverhang } from '../engine/stats';
@@ -73,6 +73,33 @@ function BedPlate({ printerId, strong }: { printerId: string; strong: boolean })
   );
 }
 
+let shadowTexture: CanvasTexture | null = null;
+function getShadowTexture(): CanvasTexture {
+  if (!shadowTexture) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 128;
+    const g = c.getContext('2d')!;
+    const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    grad.addColorStop(0, 'rgba(0,0,0,0.75)');
+    grad.addColorStop(0.55, 'rgba(0,0,0,0.35)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = grad;
+    g.fillRect(0, 0, 128, 128);
+    shadowTexture = new CanvasTexture(c);
+  }
+  return shadowTexture;
+}
+
+/** Soft contact shadow: a blurred disc under the footprint. */
+function ShadowDisc({ size }: { size: number }) {
+  return (
+    <mesh position={[0, 0, 0.02]} renderOrder={1}>
+      <planeGeometry args={[size, size]} />
+      <meshBasicMaterial map={getShadowTexture()} transparent depthWrite={false} />
+    </mesh>
+  );
+}
+
 /** Places the camera to frame the object; re-runs when `fitKey` changes. */
 function CameraRig({ width, height, fitKey }: { width: number; height: number; fitKey: number }) {
   const { camera, controls, invalidate } = useThree();
@@ -130,16 +157,7 @@ export function Viewport() {
           <meshPhysicalMaterial {...SURFACE} color={showOverhang ? '#ffffff' : SURFACE.color} vertexColors={showOverhang} />
         </mesh>
         <BedPlate printerId={design.print.printer} strong={mode === 'print'} />
-        <ContactShadows
-          position={[0, 0, 0.05]}
-          rotation={[Math.PI / 2, 0, 0]}
-          scale={Math.max(w, 60) * 2.2}
-          blur={2.4}
-          opacity={0.55}
-          far={Math.max(h, 40)}
-          resolution={512}
-          color="#05070a"
-        />
+        <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />
         <OrbitControls makeDefault enableDamping={false} minDistance={20} maxDistance={3000} />
         <CameraRig width={Math.max(w, preview.stats.size[1])} height={h} fitKey={fitKey} />
       </Canvas>
