@@ -20,6 +20,9 @@ interface State {
   future: Design[];
   lastChange: number;
   toast: Toast | null;
+  /** Bumped whenever the saved history changes, so lists reload. */
+  historyVersion: number;
+  bumpHistory: () => void;
   setDesign: (next: Design | ((d: Design) => Design)) => void;
   newDesign: () => void;
   undo: () => void;
@@ -43,6 +46,8 @@ export const useStore = create<State>()((set, get) => ({
   future: [],
   lastChange: -Infinity,
   toast: null,
+  historyVersion: 0,
+  bumpHistory: () => set((s) => ({ historyVersion: s.historyVersion + 1 })),
 
   setDesign: (next) => {
     const { design, past, lastChange } = get();
