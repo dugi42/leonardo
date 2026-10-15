@@ -2,7 +2,7 @@ import { defaultDesign, type Form } from '../design/schema';
 import { KMAX, MMAX, R_MIN } from './constants';
 import { archetypeProfile, heightForProportion } from './profile';
 import { coefficients, idx, type Coefficients } from './spectrum';
-import { radiusField } from './surface';
+import { DETAIL_MAX, radiusField } from './surface';
 
 const none = { twist: 0, edginess: 0 };
 const cyl: Form = { archetype: 'cylinder', proportion: 0.5, rim: 'flat', foot: 0 };
@@ -46,7 +46,7 @@ describe('radiusField', () => {
     const vase: Form = { ...cyl, archetype: 'vase' };
     const f = radiusField(c, shape(none, vase), 11, 16);
     for (const [i, j] of [[0, 0], [3, 5], [10, 15], [7, 2]]) {
-      const expected = archetypeProfile('vase', f.h[i]) * Math.exp(naive(c, f.h[i], f.phi[j]));
+      const expected = archetypeProfile('vase', f.h[i]) * Math.exp(DETAIL_MAX * Math.tanh(naive(c, f.h[i], f.phi[j]) / DETAIL_MAX));
       expect(f.r[i * 16 + j]).toBeCloseTo(Math.max(R_MIN, expected), 9);
     }
   });
@@ -57,7 +57,8 @@ describe('radiusField', () => {
     const f = radiusField(c, shape({ twist, edginess: 0 }), 3, 64);
     const i = 2; // h = 1
     const j = 10;
-    const expected = Math.exp(0.2 * Math.cos(3 * (f.phi[j] - 2 * Math.PI * twist)));
+    const d = 0.2 * Math.cos(3 * (f.phi[j] - 2 * Math.PI * twist));
+    const expected = Math.exp(DETAIL_MAX * Math.tanh(d / DETAIL_MAX));
     expect(f.r[i * 64 + j]).toBeCloseTo(expected, 12);
   });
 
@@ -71,9 +72,16 @@ describe('radiusField', () => {
     expect(atCorner).toBeGreaterThan(atAxis * 1.2);
   });
 
-  it('clamps to R_MIN', () => {
-    const f = radiusField(only([[0, 1, 5, 0]]), shape(), 2, 8);
-    expect(Math.min(...f.r)).toBe(R_MIN);
+  it('saturates extreme detail so ridges stay printable', () => {
+    const f = radiusField(only([[0, 4, 5, 0]]), shape(), 2, 64);
+    expect(Math.max(...f.r)).toBeLessThanOrEqual(Math.exp(DETAIL_MAX) + 1e-9);
+    expect(Math.min(...f.r)).toBeGreaterThanOrEqual(Math.exp(-DETAIL_MAX) - 1e-9);
+  });
+
+  it('never goes below R_MIN', () => {
+    const tiny = { ...cyl, archetype: 'bottle' as const, foot: 1 };
+    const f = radiusField(only([[0, 4, 5, 0]]), shape(none, tiny), 8, 64);
+    expect(Math.min(...f.r)).toBeGreaterThanOrEqual(R_MIN);
   });
 
   it('carries the raw height of the proportion', () => {

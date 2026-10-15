@@ -7,7 +7,7 @@ export const R_MIN = 0.15;
 export const BED_MARGIN_MM = 10;
 
 export const GRID = {
-  preview: { nh: 96, nphi: 128 },
+  preview: { nh: 112, nphi: 192 },
   export: { nh: 256, nphi: 384 },
 } as const;
 export type Resolution = keyof typeof GRID;

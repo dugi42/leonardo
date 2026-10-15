@@ -15,6 +15,12 @@ export interface Field {
   height: number;
 }
 
+/**
+ * Largest log-radius excursion: detail is softly saturated with DETAIL_MAX * tanh(D / DETAIL_MAX),
+ * so ridges peak at e^0.7 ~ 2x and valleys at 0.5x of the form instead of thin fins.
+ */
+export const DETAIL_MAX = 0.7;
+
 /** Superellipse radius factor with exponent q; 1 for a circle. */
 function superellipse(angle: number, q: number): number {
   return (Math.abs(Math.cos(angle)) ** q + Math.abs(Math.sin(angle)) ** q) ** (-1 / q);
@@ -89,7 +95,7 @@ export function radiusField(
       const a = phi[j] - tau;
       let d = 0;
       for (const m of active) d += P[m] * Math.cos(m * a) + Q[m] * Math.sin(m * a);
-      let v = base * Math.exp(d);
+      let v = base * Math.exp(DETAIL_MAX * Math.tanh(d / DETAIL_MAX));
       if (mods.edginess > 0) v *= superellipse(a, q) * edgeNorm;
       r[i * nphi + j] = Math.max(R_MIN, v);
     }
