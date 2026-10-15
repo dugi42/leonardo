@@ -33,10 +33,15 @@ export function variationTiles() {
   setExplore({ tiles, selected: CENTRE, kind: 'variations' });
 }
 
+/** Tiles carry shapes; filament, body and printer always come from the current design. */
+export function withSetup(tile: Design, current: Design): Design {
+  return { ...tile, body: current.body, print: current.print, look: current.look };
+}
+
 export function refineSelected() {
-  const { explore, setDesign, setMode } = useStore.getState();
+  const { explore, design, setDesign, setMode } = useStore.getState();
   const chosen = explore.tiles[explore.selected];
-  if (chosen) setDesign(chosen);
+  if (chosen) setDesign(withSetup(chosen, design));
   setMode('refine');
 }
 
@@ -68,6 +73,7 @@ function Tile({ design, index, selected, label }: { design: Design; index: numbe
 export function ExploreGrid() {
   const t = useT();
   const explore = useStore((s) => s.explore);
+  const current = useStore((s) => s.design);
   const label = (d: Design, i: number) => {
     if (explore.kind !== 'variations') return `#${d.seed}`;
     if (i === CENTRE) return t('explore.parent');
@@ -81,9 +87,10 @@ export function ExploreGrid() {
   return (
     <div className="explore">
       <div className="explore-grid">
-        {explore.tiles.map((d, i) => (
-          <Tile key={`${i}-${encodeDesign(d)}`} design={d} index={i} selected={i === explore.selected} label={label(d, i)} />
-        ))}
+        {explore.tiles.map((tile, i) => {
+          const d = withSetup(tile, current);
+          return <Tile key={`${i}-${encodeDesign(d)}`} design={d} index={i} selected={i === explore.selected} label={label(d, i)} />;
+        })}
       </div>
     </div>
   );

@@ -59,4 +59,20 @@ describe('ExploreGrid', () => {
     expect(useStore.getState().design).toEqual(chosen);
     expect(useStore.getState().mode).toBe('refine');
   });
+
+  it('keeps the current filament, body and printer when a tile is opened', () => {
+    render(<><ExploreGrid /><ExplorePanel /></>);
+    useStore.getState().setDesign((d) => ({
+      ...d,
+      look: { color: 'black', finish: 'matte' },
+      body: { ...d.body, kind: 'planter' },
+      print: { printer: 'a1mini', heightMm: 90 },
+    }));
+    fireEvent.click(tiles()[2]);
+    fireEvent.click(screen.getByRole('button', { name: 'Refine this design' }));
+    const d = useStore.getState().design;
+    expect(d.look).toEqual({ color: 'black', finish: 'matte' });
+    expect(d.body.kind).toBe('planter');
+    expect(d.print).toEqual({ printer: 'a1mini', heightMm: 90 });
+  });
 });
