@@ -29,6 +29,9 @@ interface State {
   /** Bumped whenever the saved history changes, so lists reload. */
   historyVersion: number;
   showOverhang: boolean;
+  /** Spectrum cell under the pointer; the viewport tints the model by its basis function. */
+  hoverCell: { k: number; m: number } | null;
+  setHoverCell: (cell: { k: number; m: number } | null) => void;
   explore: ExploreState;
   setExplore: (patch: Partial<ExploreState>) => void;
   setShowOverhang: (on: boolean) => void;
@@ -58,6 +61,8 @@ export const useStore = create<State>()((set, get) => ({
   toast: null,
   historyVersion: 0,
   showOverhang: false,
+  hoverCell: null,
+  setHoverCell: (hoverCell) => set({ hoverCell }),
   explore: { tiles: [], selected: 0, temperature: 0.35 },
   setExplore: (patch) => set((s) => ({ explore: { ...s.explore, ...patch } })),
   setShowOverhang: (showOverhang) => set({ showOverhang }),
@@ -112,5 +117,5 @@ export const useStore = create<State>()((set, get) => ({
 
 /** Test and load helper: start over with a given design and empty undo history. */
 export function resetStore(design: Design, mode: Mode = 'refine') {
-  useStore.setState({ design, past: [], future: [], lastChange: -Infinity, mode, toast: null });
+  useStore.setState({ design, past: [], future: [], lastChange: -Infinity, mode, toast: null, hoverCell: null });
 }

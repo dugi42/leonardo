@@ -12,8 +12,8 @@ export function kilnColor(t: number): string {
   return `#${rgb.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }
 
-/** Magnitude relative to the strongest term on a log scale: three decades map to 0 .. 1. */
+/** Magnitude relative to the strongest term on a log scale: two decades map to 0 .. 1. */
 export function magnitudeToT(mag: number, max: number): number {
   if (mag <= 0 || max <= 0) return 0;
-  return Math.min(1, Math.max(0, 1 + Math.log10(mag / max) / 3));
+  return Math.min(1, Math.max(0, 1 + Math.log10(mag / max) / 2));
 }

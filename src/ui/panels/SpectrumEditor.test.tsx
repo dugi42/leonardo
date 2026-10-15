@@ -40,7 +40,7 @@ describe('SpectrumEditor', () => {
     const map = screen.getByRole('img', { name: 'Spectrum' });
     fireEvent.pointerDown(map, at(2, 3));
     fireEvent.pointerUp(map, at(2, 3));
-    expect(useStore.getState().design.spectrum.edits).toEqual({ '2,3': 1.25 });
+    expect(useStore.getState().design.spectrum.edits).toEqual({ '2,3': 1.6 });
     fireEvent.click(screen.getByRole('button', { name: 'Reset edits' }));
     expect(useStore.getState().design.spectrum.edits).toEqual({});
   });
@@ -53,7 +53,7 @@ describe('SpectrumEditor', () => {
     fireEvent.pointerMove(map, at(1, 1));
     fireEvent.pointerMove(map, at(1, 2));
     fireEvent.pointerUp(map, at(1, 2));
-    expect(useStore.getState().design.spectrum.edits).toEqual({ '1,1': 0.8, '1,2': 0.8 });
+    expect(useStore.getState().design.spectrum.edits).toEqual({ '1,1': 0.5, '1,2': 0.5 });
   });
 
   it('never edits the mean term', () => {
@@ -63,6 +63,35 @@ describe('SpectrumEditor', () => {
     fireEvent.pointerDown(map, at(0, 0));
     fireEvent.pointerUp(map, at(0, 0));
     expect(useStore.getState().design.spectrum.edits).toEqual({});
+  });
+});
+
+describe('hover readout', () => {
+  it('reads out the hovered cell and publishes it for the 3D tint', () => {
+    render(<SpectrumEditor />);
+    const map = screen.getByRole('img', { name: 'Spectrum' });
+    expect(screen.getByText(/Hover a cell/)).toBeInTheDocument();
+    fireEvent.pointerMove(map, at(3, 8));
+    expect(screen.getByTestId('spectrum-status')).toHaveTextContent(/k 3 · m 8/);
+    expect(useStore.getState().hoverCell).toEqual({ k: 3, m: 8 });
+    fireEvent.pointerLeave(map);
+    expect(useStore.getState().hoverCell).toBeNull();
+  });
+
+  it('labels the mean cell as the form', () => {
+    render(<SpectrumEditor />);
+    fireEvent.pointerMove(screen.getByRole('img', { name: 'Spectrum' }), at(0, 0));
+    expect(screen.getByTestId('spectrum-status')).toHaveTextContent(/form/);
+  });
+
+  it('shows the edit count in the status line', () => {
+    render(<SpectrumEditor />);
+    fireEvent.click(screen.getByRole('radio', { name: 'Boost' }));
+    const map = screen.getByRole('img', { name: 'Spectrum' });
+    fireEvent.pointerDown(map, at(2, 3));
+    fireEvent.pointerUp(map, at(2, 3));
+    fireEvent.pointerLeave(map);
+    expect(screen.getByTestId('spectrum-status')).toHaveTextContent('1 edited');
   });
 });
 

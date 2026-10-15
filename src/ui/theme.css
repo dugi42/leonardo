@@ -556,8 +556,8 @@ select {
 
 .heatmap-frame {
   position: relative;
-  padding: 0 0 14px 14px;
-  margin-bottom: 12px;
+  padding: 0 0 16px 18px;
+  margin-bottom: 4px;
 }
 
 .heatmap {
@@ -575,9 +575,30 @@ select {
   cursor: nwse-resize;
 }
 
+.heatmap .cell-empty {
+  fill: none;
+  stroke: #1c222b;
+  stroke-width: 0.6;
+}
+
+.heatmap .cell-form {
+  fill: none;
+  stroke: var(--kiln);
+  stroke-width: 1;
+  stroke-dasharray: 2 1.5;
+}
+
 .heatmap .kept {
   fill: none;
   stroke: var(--glaze);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.heatmap .hover {
+  fill: none;
+  stroke: #fff;
   stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
   pointer-events: none;
@@ -599,25 +620,57 @@ select {
 .heatmap .edit-damp {
   fill: var(--void);
   stroke: #fff;
-  stroke-width: 0.6;
+  stroke-width: 0.7;
   pointer-events: none;
 }
 
-.axis {
+.ticks-k,
+.ticks-m {
   position: absolute;
   color: var(--faint);
-  font-size: 11px;
-  font-style: italic;
+  font-size: 10.5px;
+  pointer-events: none;
 }
 
-.axis-k {
+.ticks-k {
   left: 0;
   top: 0;
+  bottom: 16px;
+  width: 16px;
 }
 
-.axis-m {
+.ticks-k span {
+  position: absolute;
+  right: 4px;
+  transform: translateY(50%);
+}
+
+.ticks-m {
+  left: 18px;
   right: 0;
-  bottom: -2px;
+  bottom: 0;
+  height: 14px;
+}
+
+.ticks-m span {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.ticks-k .axis-name,
+.ticks-m .axis-name {
+  font-style: italic;
+  transform: none;
+}
+
+.spectrum-status {
+  height: 20px;
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .brushes {

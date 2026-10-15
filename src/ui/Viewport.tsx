@@ -4,11 +4,13 @@ import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { BufferAttribute, BufferGeometry, CanvasTexture, Color, Object3D } from 'three';
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { printerById } from '../engine/printers';
+import { editedCoefficients, idx } from '../engine/spectrum';
 import { faceOverhang } from '../engine/stats';
 import { useT } from '../i18n/useT';
 import { useStore } from '../state/store';
 import { Icon } from './icons';
 import { getPreview } from './preview';
+import { basisTint } from './three/basis';
 import { meshToGeometry, SURFACE } from './three/geometry';
 
 // Printers think in z-up; so does every mesh we build.
@@ -16,6 +18,21 @@ Object3D.DEFAULT_UP.set(0, 0, 1);
 
 const BASE = new Color(SURFACE.color);
 const HOT = new Color('#ff5b4d');
+const PLUS = new Color('#f0a63a');
+const MINUS = new Color('#4fb3a5');
+
+function basisColors(weights: Float32Array): Float32Array {
+  const out = new Float32Array(weights.length * 3);
+  const c = new Color();
+  for (let i = 0; i < weights.length; i++) {
+    const w = weights[i];
+    c.copy(BASE).lerp(w >= 0 ? PLUS : MINUS, Math.abs(w) * 0.85);
+    out[3 * i] = c.r;
+    out[3 * i + 1] = c.g;
+    out[3 * i + 2] = c.b;
+  }
+  return out;
+}
 
 function overhangColors(marks: Float32Array): Float32Array {
   const out = new Float32Array(marks.length * 3);
@@ -123,14 +140,23 @@ export function Viewport() {
   const live = useStore((s) => s.design);
   const mode = useStore((s) => s.mode);
   const showOverhang = useStore((s) => s.showOverhang) && mode === 'print';
+  const hoverCell = useStore((s) => (mode === 'refine' ? s.hoverCell : null));
   const design = useDeferredValue(live);
   const preview = getPreview(design);
   const [fitKey, setFitKey] = useState(0);
 
-  const geometry = useMemo(
-    () => meshToGeometry(preview.mesh, showOverhang ? overhangColors(faceOverhang(preview.mesh)) : undefined),
-    [preview, showOverhang],
-  );
+  const tint = useMemo(() => {
+    if (hoverCell && (hoverCell.k || hoverCell.m)) {
+      const c = editedCoefficients(design.seed, design.spectrum);
+      const i = idx(hoverCell.k, hoverCell.m);
+      const cell = { ...hoverCell, phase: Math.atan2(c.S[i], c.C[i]) };
+      const opts = { heightMm: preview.scale.heightMm, offset: preview.scale.offset, twist: design.modifiers.twist };
+      return basisColors(basisTint(preview.mesh, cell, opts));
+    }
+    if (showOverhang) return overhangColors(faceOverhang(preview.mesh));
+    return undefined;
+  }, [preview, showOverhang, hoverCell, design]);
+  const geometry = useMemo(() => meshToGeometry(preview.mesh, tint), [preview, tint]);
   useEffect(() => () => geometry.dispose(), [geometry]);
 
   const [w, , h] = preview.stats.size;
@@ -155,7 +181,7 @@ export function Viewport() {
             <Lightformer form="ring" intensity={1.6} position={[7, 3, 5]} scale={3} color="#ffd9a0" />
           </Environment>
           <mesh geometry={geometry}>
-            <meshPhysicalMaterial {...SURFACE} color={showOverhang ? '#ffffff' : SURFACE.color} vertexColors={showOverhang} />
+            <meshPhysicalMaterial {...SURFACE} color={tint ? '#ffffff' : SURFACE.color} vertexColors={!!tint} />
           </mesh>
           <BedPlate printerId={design.print.printer} strong={mode === 'print'} />
           <ShadowDisc size={Math.max(w, preview.stats.size[1]) * 1.7} />
